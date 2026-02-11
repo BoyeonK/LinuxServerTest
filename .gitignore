@@ -1,0 +1,13 @@
+# CMake 빌드 폴더 무시
+build/
+cmake-build-debug/
+
+# VS Code 설정 폴더 무시
+.vscode/
+
+# 캐시 파일 무시
+CMakeCache.txt
+CMakeFiles/
+
+# OS 임시 파일
+.DS_Store
