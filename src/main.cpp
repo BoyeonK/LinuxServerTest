@@ -12,7 +12,9 @@ int main() {
     NetAddress myAddress("0.0.0.0", 7777);
     LobbyServerService::Instance().Init(myAddress);
 
-    std::cout << "LobbyServerService initiated" << std::endl;
+    std::cout << "LobbyServerService 초기화" << std::endl;
+
+    LobbyServerService::Instance().Start();
 
     const int WORKER_COUNT = 5;
     for (int i = 0; i < WORKER_COUNT; i++) {

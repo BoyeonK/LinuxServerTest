@@ -5,8 +5,7 @@
 using namespace std;
 
 // private 생성자: 기본값 초기화만 수행
-LobbyServerService::LobbyServerService() {
-}
+LobbyServerService::LobbyServerService() { }
 
 LobbyServerService::~LobbyServerService() {
     Stop();
@@ -29,8 +28,8 @@ bool LobbyServerService::Start() {
 
     _isRunning = true;
 
-    cout << "[LobbyServerService] Started on Port: " << _port << endl;
-    cout << "[LobbyServerService] Max Sessions: " << _maxSessionCount << endl;
+    cout << "LobbyServerService 포트 : " << _port << endl;
+    cout << "최대 동접 제한 : " << _maxSessionCount << endl;
 
     return true;
 }
@@ -40,7 +39,8 @@ void LobbyServerService::Stop() {
         return;
 
     _isRunning = false;
-    
+    cout << "LobbyServerService 명시적으로 중지 시도" << endl;
+
     {
         std::unique_lock<std::shared_mutex> lock(_sessionLock);
         _sessions.clear();
@@ -51,7 +51,7 @@ void LobbyServerService::Stop() {
         delete task;
     }
 
-    cout << "[LobbyServerService] Stopped." << endl;
+    cout << "LobbyServerService 명시적으로 중지됨" << endl;
 }
 
 std::shared_ptr<LobbySession> LobbyServerService::CreateLobbySession(int clientSocket) {
