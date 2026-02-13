@@ -12,8 +12,15 @@
 
 class LobbyServerService {
 public:
-    LobbyServerService(NetAddress address, int maxSessionCount = 1000);
-    ~LobbyServerService();
+    static LobbyServerService& Instance() {
+        static LobbyServerService instance; // C++11부터 Thread-Safe 보장
+        return instance;
+    }
+
+    LobbyServerService(const LobbyServerService&) = delete;
+    LobbyServerService& operator=(const LobbyServerService&) = delete;
+
+    bool Init(NetAddress address, int maxSessionCount = 1000);
 
     bool Start();
     void Stop();
@@ -22,9 +29,14 @@ public:
     bool AddSession(std::shared_ptr<LobbySession> lSessionRef);
     bool ReleaseSession(std::shared_ptr<LobbySession> lSessionRef);
     bool ReleaseSession(int sessionId);
+
     NetAddress GetAddress() const { return _myAddress; }
 
     moodycamel::ConcurrentQueue<MyUtils::TLTask*> LobbyServerTaskQueue;
+
+private:
+    LobbyServerService();
+    ~LobbyServerService();
 
 private:
     NetAddress _myAddress;

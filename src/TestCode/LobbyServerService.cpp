@@ -4,13 +4,23 @@
 
 using namespace std;
 
-LobbyServerService::LobbyServerService(NetAddress address, int maxSessionCount)
-    : _myAddress(address), _maxSessionCount(maxSessionCount) {
-    _port = address.GetPort();
+// private 생성자: 기본값 초기화만 수행
+LobbyServerService::LobbyServerService() {
 }
 
 LobbyServerService::~LobbyServerService() {
     Stop();
+}
+
+bool LobbyServerService::Init(NetAddress address, int maxSessionCount) {
+    if (_isRunning)
+        return false;
+
+    _myAddress = address;
+    _port = address.GetPort();
+    _maxSessionCount = maxSessionCount;
+    
+    return true;
 }
 
 bool LobbyServerService::Start() {

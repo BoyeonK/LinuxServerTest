@@ -10,7 +10,9 @@
 
 int main() {
     NetAddress myAddress("0.0.0.0", 7777);
-    LobbyServerService LSService(myAddress);
+    LobbyServerService::Instance().Init(myAddress);
+
+    std::cout << "LobbyServerService initiated" << std::endl;
 
     const int WORKER_COUNT = 5;
     for (int i = 0; i < WORKER_COUNT; i++) {
