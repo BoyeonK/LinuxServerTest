@@ -21,7 +21,14 @@ FetchContent_MakeAvailable(MyUtils)
 set(PROJECT_SOURCES
     src/main.cpp
     src/TestCode/MultiThreadTest.cpp
+    src/TestCode/NetAddress.cpp
+    src/TestCode/LobbySession.cpp
+    src/TestCode/LobbyServerService.cpp
+
     src/TestCode/MultiThreadTest.h 
+    src/TestCode/NetAddress.h
+    src/TestCode/LobbySession.h
+    src/TestCode/LobbyServerService.h
 )
 
 # 내 게임 실행 파일 생성

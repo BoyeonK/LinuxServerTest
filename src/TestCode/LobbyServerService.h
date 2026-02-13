@@ -4,8 +4,11 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <shared_mutex>
 #include "LobbySession.h"
 #include "NetAddress.h"
+#include "concurrentqueue.h"
+#include "MyUtils/ThreadLocalTask.h"
 
 class LobbyServerService {
 public:
@@ -20,20 +23,18 @@ public:
     bool ReleaseSession(std::shared_ptr<LobbySession> lSessionRef);
     bool ReleaseSession(int sessionId);
     NetAddress GetAddress() const { return _myAddress; }
-    
-private:
-    void AcceptLoop();
+
+    moodycamel::ConcurrentQueue<MyUtils::TLTask*> LobbyServerTaskQueue;
 
 private:
     NetAddress _myAddress;
     uint16_t _port = 0;
-    atd::atomic<bool> _isRunning = false;
-    int _listenSocket = -1;
-    struct io_uring _acceptRing;
+
+    std::atomic<bool> _isRunning = false;
     uint32_t _maxSessionCount = 100;
 
     std::shared_mutex _sessionLock; 
-    std::map<int, std::shared_ptr<Session>> _sessions;
+    std::map<int, std::shared_ptr<LobbySession>> _sessions;
 
     std::atomic<int> _sessionIDGenerator = { 1 };
 };
