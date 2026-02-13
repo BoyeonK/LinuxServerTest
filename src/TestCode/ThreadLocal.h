@@ -1,4 +1,11 @@
 #pragma once
+#include <liburing.h>
+#include <iostream>
+#include <cstdlib>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include "NetAddress.h"
 
 class IoUringWrapper {
 public:
@@ -21,6 +28,24 @@ public:
 
 private:
     struct io_uring _ring;
+};
+
+class Listener {
+public:
+    Listener(uint16_t port);
+    ~Listener();
+
+    Listener(const Listener&) = delete;
+    Listener& operator=(const Listener&) = delete;
+
+    int GetSocket() const { return _listenSocket; }
+
+private:
+    bool Start(uint16_t port);
+    void Close();
+
+private:
+    int _listenSocket = -1;
 };
 
 extern thread_local IoUringWrapper LThreadRing;
