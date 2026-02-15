@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
     src/TestCode/LobbyServerService.cpp
     src/TestCode/ThreadLocal.cpp
     src/TestCode/ChildProcessTest.cpp
+    src/IPCSocket.cpp
 
     src/TestCode/MultiThreadTest.h 
     src/TestCode/NetAddress.h
@@ -35,6 +36,7 @@ set(PROJECT_SOURCES
     src/TestCode/LobbyServerService.h
     src/TestCode/ThreadLocal.h
     src/TestCode/ChildProcessTest.h
+    src/IPCSocket.h
 )
 
 # 내 서버 실행 파일 생성

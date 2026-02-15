@@ -4,10 +4,13 @@
 #include <thread>
 #include <chrono>
 #include "TestCode/ChildProcessTest.h"
+#include "IPCSocket.h"
 
 int main() {
     pid_t pid;
     launchNode(pid);
+
+    RunIpcTest();
 
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(1));

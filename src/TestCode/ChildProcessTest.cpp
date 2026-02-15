@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string>
 #include <sys/prctl.h>
+#include <csignal>
 
 using namespace std;
 
