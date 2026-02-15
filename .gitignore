@@ -14,5 +14,5 @@ CMakeFiles/
 
 node_modules/
 
-IPCProtocol.pb.cc
-IPCProtocol.ph.h
+*.pb.cc
+*.pb.h
