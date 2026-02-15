@@ -48,4 +48,19 @@ private:
     int _listenSocket = -1;
 };
 
+class Accepter {
+public:
+    Accepter() {};
+    ~Accepter() {};
+    void Init(Listener& listener) {};
+
+    Accepter(const Accepter&) = delete;
+    Accepter& operator=(const Accepter&) = delete;
+
+    void RegisterAccept();
+
+private:
+    int _listenSocket = -1;
+};
+
 extern thread_local IoUringWrapper LThreadRing;

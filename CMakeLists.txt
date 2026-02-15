@@ -24,11 +24,15 @@ set(PROJECT_SOURCES
     src/TestCode/NetAddress.cpp
     src/TestCode/LobbySession.cpp
     src/TestCode/LobbyServerService.cpp
+    src/TestCode/ThreadLocal.cpp
+    src/TestCode/ChildProcessTest.cpp
 
     src/TestCode/MultiThreadTest.h 
     src/TestCode/NetAddress.h
     src/TestCode/LobbySession.h
     src/TestCode/LobbyServerService.h
+    src/TestCode/ThreadLocal.h
+    src/TestCode/ChildProcessTest.h
 )
 
 # 내 게임 실행 파일 생성

@@ -1,6 +1,7 @@
 #include "ThreadLocal.h"
 
 thread_local IoUringWrapper LThreadRing;
+thread_local Accepter LAccepter;
 
 Listener::Listener(uint16_t port) {
     if (!Start(port)) {
