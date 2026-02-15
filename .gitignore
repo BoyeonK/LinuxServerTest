@@ -13,3 +13,6 @@ CMakeFiles/
 .DS_Store
 
 node_modules/
+
+IPCProtocol.pb.cc
+IPCProtocol.ph.h

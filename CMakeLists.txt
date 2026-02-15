@@ -4,7 +4,10 @@ project(LinuxServerTest)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_library(URING_LIB uring)
+find_library(URING_LIB uring REQUIRED)
+
+set(Protobuf_USE_STATIC_LIBS ON)
+find_package(Protobuf REQUIRED)
 
 # FetchContent 모듈 불러오기
 include(FetchContent)
@@ -15,7 +18,6 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/BoyeonK/myUtils.git
     GIT_TAG        main
 )
-# 내 라이브러리 다운로드 및 설정 (자동으로 add_subdirectory 함)
 FetchContent_MakeAvailable(MyUtils)
 
 set(PROJECT_SOURCES
@@ -35,10 +37,16 @@ set(PROJECT_SOURCES
     src/TestCode/ChildProcessTest.h
 )
 
-# 내 게임 실행 파일 생성
+# 내 서버 실행 파일 생성
 add_executable(LinuxServerTest ${PROJECT_SOURCES})
 
-target_include_directories(LinuxServerTest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(LinuxServerTest PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${Protobuf_INCLUDE_DIRS}
+)
 
-# 라이브러리 링크 (아까 만든 별칭 사용)
-target_link_libraries(LinuxServerTest PRIVATE MyUtils::MyUtils ${URING_LIB})
+target_link_libraries(LinuxServerTest PRIVATE 
+    MyUtils::MyUtils 
+    ${URING_LIB}
+    ${Protobuf_LIBRARIES}
+)

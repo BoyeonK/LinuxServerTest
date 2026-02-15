@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package IPC_Protocol;
+
+message SWelcome {
+    int32 echo_message = 1;
+}
