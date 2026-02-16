@@ -27,7 +27,6 @@ set(PROJECT_SOURCES
     src/TestCode/LobbySession.cpp
     src/TestCode/LobbyServerService.cpp
     src/TestCode/ThreadLocal.cpp
-    src/TestCode/ChildProcessTest.cpp
     src/IPCSocket.cpp
 
     src/TestCode/MultiThreadTest.h 
@@ -35,7 +34,6 @@ set(PROJECT_SOURCES
     src/TestCode/LobbySession.h
     src/TestCode/LobbyServerService.h
     src/TestCode/ThreadLocal.h
-    src/TestCode/ChildProcessTest.h
     src/IPCSocket.h
 )
 

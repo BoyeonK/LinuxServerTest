@@ -1,4 +1,5 @@
 const net = require('net');
+const protobuf = require("protobufjs");
 
 const SOCKET_PATH = '/tmp/game.sock';
 

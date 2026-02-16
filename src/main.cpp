@@ -3,14 +3,20 @@
 #include <atomic>
 #include <thread>
 #include <chrono>
-#include "TestCode/ChildProcessTest.h"
+#include "TestCode/ThreadLocal.h"
 #include "IPCSocket.h"
 
 int main() {
-    pid_t pid;
-    launchNode(pid);
+    try {
+        IPCSocketWrapper httpsIpc("/tmp/https.sock", 1);
+        httpsIpc.Init();
 
-    RunIpcTest();
+        IPCSocketWrapper dedicateIpc("/tmp/dedicate.sock", 128);
+        dedicateIpc.Init();
+    } catch (const std::exception& e) {
+        std::cerr << "소켓 생성 실패 : " << e.what() << std::endl;
+        return 1;
+    }
 
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
