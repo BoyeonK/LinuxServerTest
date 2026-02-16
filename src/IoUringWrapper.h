@@ -12,9 +12,6 @@
 
 class IoUringWrapper {
 public:
-    enum {
-        SEND_BUFFER_CHUNK_SIZE = 65536,
-    };
     IoUringWrapper();
     ~IoUringWrapper();
 

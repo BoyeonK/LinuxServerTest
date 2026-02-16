@@ -41,7 +41,7 @@ void IoUringWrapper::RegisterAcceptTask(int listenFd, IOTask* task) {
 }
 
 SendBuffer* IoUringWrapper::OpenSendBuffer(uint32_t allocSize) {
-    if (allocSize > SEND_BUFFER_CHUNK_SIZE) {
+    if (allocSize > SendBufferChunk::SEND_BUFFER_CHUNK_SIZE) {
         throw std::runtime_error("writeSize > _allocSize");
     }
 
