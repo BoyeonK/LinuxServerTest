@@ -1,5 +1,9 @@
 #pragma once
 
+#include <iostream>
+
+class IoUringWrapper;
+
 enum IOTaskType {
     CONNECT_IPC,
     DISCONNECT_IPC,
@@ -25,18 +29,9 @@ public:
 
 class AcceptTask : public IOTask {
 public:
-    AcceptTask(int listenFd, IOTaskType taskType) {
-        this->fd = listenFd;
-        this->type = taskType;
-    }
+    AcceptTask(int listenFd, IOTaskType taskType, IoUringWrapper* uring);
+    void callback(int result) override;
 
-    void callback(int result) override {
-        if (result < 0) {
-            std::cerr << "Accept failed: " << result << std::endl;
-            return;
-        }
-
-        int clientFd = result;
-        std::cout << "New IPC Accepted! FD: " << clientFd << std::endl;
-    }
+private:
+    IoUringWrapper* _uring;
 };

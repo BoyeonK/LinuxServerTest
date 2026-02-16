@@ -23,14 +23,14 @@ FetchContent_MakeAvailable(MyUtils)
 set(PROJECT_SOURCES
     src/main.cpp
     src/TestCode/NetAddress.cpp
-    src/IPCSocket.cpp
+    src/IPCSocketWrapper.cpp
     src/IOTask.cpp
     src/HTTPserver.cpp
     src/IoUringWrapper.cpp
     src/ObjectPool.cpp
 
     src/TestCode/NetAddress.h
-    src/IPCSocket.h
+    src/IPCSocketWrapper.h
     src/IOTask.h
     src/HTTPserver.h
     src/IoUringWrapper.h

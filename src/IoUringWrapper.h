@@ -5,25 +5,18 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include "IOTask.h"
 
 class IoUringWrapper {
 public:
-    IoUringWrapper() {
-        int ret = io_uring_queue_init(4096, &_ring, 0);
-        if (ret < 0) {
-            std::cerr << "링을 만들수가 없엉 : " << ret << std::endl;
-            exit(1); // 링 못 만들면 서버 죽어야 함
-        }
-    }
-
-    ~IoUringWrapper() {
-        io_uring_queue_exit(&_ring);
-    }
-
-    struct io_uring* GetRing() { return &_ring; }
+    IoUringWrapper();
+    ~IoUringWrapper();
 
     IoUringWrapper(const IoUringWrapper&) = delete;
     IoUringWrapper& operator=(const IoUringWrapper&) = delete;
+
+    void ExecuteCQTask();
+    void RegisterAcceptTask(int listenFd, IOTask* task);
 
 private:
     struct io_uring _ring;
