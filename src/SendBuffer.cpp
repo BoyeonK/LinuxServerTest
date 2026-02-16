@@ -13,7 +13,7 @@ SendBuffer* SendBufferChunk::Open(uint32_t allocSize) {
 
 	_isOpen = true;
 	SendBuffer* pBuffer = ObjectPool<SendBuffer>::Acquire();
-    pBuffer->Init(std::shared_from_this(), Index(), allocSize);
+    pBuffer->Init(shared_from_this(), Index(), allocSize);
 	return pBuffer;
 }
 
