@@ -9,11 +9,7 @@
 #include "IPCSocketWrapper.h"
 #include "ObjectPool.h"
 
-std::unique_ptr<IoUringWrapper> uringRef;
-
 int main() {
-    uringRef = std::make_unique<IoUringWrapper>();
-
     std::unique_ptr<IPCListenSocketWrapper> httpsIpc;
     std::unique_ptr<IPCListenSocketWrapper> dedicateIpc;
     pid_t nodePid;
@@ -30,9 +26,9 @@ int main() {
         AcceptTask* httpAcceptTask = ObjectPool<AcceptTask>::Acquire(
             httpsIpc->GetFd(), 
             ACCEPT_IPC, 
-            uringRef.get()
+            IORing
         );
-        uringRef->RegisterAcceptTask(httpsIpc->GetFd(), httpAcceptTask);
+        IORing->RegisterAcceptTask(httpsIpc->GetFd(), httpAcceptTask);
 
     } catch (const std::exception& e) {
         std::cerr << "소켓 생성 ~ 초기화 실패 : " << e.what() << std::endl;
@@ -40,7 +36,7 @@ int main() {
     }
 
     while (true) {
-        uringRef->ExecuteCQTask();
+        IORing->ExecuteCQTask();
 
         std::this_thread::yield();
     }

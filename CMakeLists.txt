@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
     src/HTTPserver.cpp
     src/IoUringWrapper.cpp
     src/ObjectPool.cpp
+    src/SendBuffer.cpp
 
     src/TestCode/NetAddress.h
     src/IPCSocketWrapper.h
@@ -35,6 +36,7 @@ set(PROJECT_SOURCES
     src/HTTPserver.h
     src/IoUringWrapper.h
     src/ObjectPool.h
+    src/SendBuffer.h
 )
 
 # 내 서버 실행 파일 생성

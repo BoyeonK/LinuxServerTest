@@ -29,3 +29,23 @@ private:
     std::string _sockPath;
     int _queueSize;
 };
+/*
+class IPCSession {
+public:
+    IPCSession(int fd, IoUringWrapper* uring);
+    virtual ~IPCSession();
+
+    void RegisterRead();
+    void Send(const void* data, size_t len);
+
+    int GetFd() const { return _fd; }
+
+protected:
+    virtual void OnReadComplete(int result);
+    virtual void OnWriteComplete(int result);
+
+    int _fd;
+    IoUringWrapper* _uring;
+    std::array<uint8_t, 65536> _readBuffer;   // read용 버퍼
+};
+*/
