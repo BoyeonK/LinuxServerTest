@@ -7,7 +7,6 @@
 
 class SendBuffer;
 
-// shared_ptr로 관리되는 객체 내부에서 자기 자신의 shared_ptr을 안전하게 생성하기 위해 상속
 class SendBufferChunk : public std::enable_shared_from_this<SendBufferChunk> {
 public:
     enum {

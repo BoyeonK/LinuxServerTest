@@ -21,5 +21,19 @@ void IPCListenSocketWrapper::Init() {
     }
 }
 
+IPCSession::IPCSession(int fd, IoUringWrapper* uring) {
 
+}
+
+IPCSession::~IPCSession() {
+
+}
+
+void IPCSession::RegisterRead() {
+
+}
+
+void IPCSession::Send(SendBuffer* sendBuffer) {
+
+}
 

@@ -6,6 +6,9 @@
 #include <cstring>
 #include <stdexcept>
 
+#include "SendBuffer.h"
+#include "IoUringWrapper.h"
+
 class IPCListenSocketWrapper {
 public:
     IPCListenSocketWrapper(std::string sockPath, int queueSize) 
@@ -29,23 +32,22 @@ private:
     std::string _sockPath;
     int _queueSize;
 };
-/*
+
 class IPCSession {
 public:
     IPCSession(int fd, IoUringWrapper* uring);
     virtual ~IPCSession();
 
     void RegisterRead();
-    void Send(const void* data, size_t len);
+    void Send(SendBuffer* sendBuffer);
 
     int GetFd() const { return _fd; }
 
 protected:
-    virtual void OnReadComplete(int result);
-    virtual void OnWriteComplete(int result);
+    virtual void OnReadComplete(int result) {};
+    virtual void OnWriteComplete(int result) {};
 
     int _fd;
     IoUringWrapper* _uring;
     std::array<uint8_t, 65536> _readBuffer;   // read용 버퍼
 };
-*/

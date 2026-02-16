@@ -29,6 +29,7 @@ set(PROJECT_SOURCES
     src/IoUringWrapper.cpp
     src/ObjectPool.cpp
     src/SendBuffer.cpp
+    src/S2HPacketHandler.cpp
 
     src/TestCode/NetAddress.h
     src/IPCSocketWrapper.h
@@ -37,6 +38,7 @@ set(PROJECT_SOURCES
     src/IoUringWrapper.h
     src/ObjectPool.h
     src/SendBuffer.h
+    src/S2HPacketHandler.h
 )
 
 # 내 서버 실행 파일 생성
