@@ -3,16 +3,25 @@
 #include <atomic>
 #include <thread>
 #include <chrono>
-#include "TestCode/ThreadLocal.h"
+#include "IoUringWrapper.h"
+#include "HTTPserver.h"
 #include "IPCSocket.h"
+#include "ObjectPool.h"
 
 int main() {
+    IoUringWrapper IUwrapper;
+
     try {
         IPCSocketWrapper httpsIpc("/tmp/https.sock", 1);
         httpsIpc.Init();
 
         IPCSocketWrapper dedicateIpc("/tmp/dedicate.sock", 128);
         dedicateIpc.Init();
+
+        pid_t nodePid;
+        if (launchNode(nodePid))
+            std::cout << "Node.js server launched (PID: " << nodePid << ")" << std::endl;
+
     } catch (const std::exception& e) {
         std::cerr << "소켓 생성 실패 : " << e.what() << std::endl;
         return 1;

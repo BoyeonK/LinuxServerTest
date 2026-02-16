@@ -11,7 +11,7 @@ enum IOTaskType {
     ACCEPT_CLIENT,
     READ_CLIENT,
     SEND_CLIENT,
-}
+};
 
 class IOTask {
 public:
@@ -21,5 +21,22 @@ public:
     IOTaskType type;
 
     virtual void callback(int result) = 0;
-}
+};
 
+class AcceptTask : public IOTask {
+public:
+    AcceptTask(int listenFd, IOTaskType taskType) {
+        this->fd = listenFd;
+        this->type = taskType;
+    }
+
+    void callback(int result) override {
+        if (result < 0) {
+            std::cerr << "Accept failed: " << result << std::endl;
+            return;
+        }
+
+        int clientFd = result;
+        std::cout << "New IPC Accepted! FD: " << clientFd << std::endl;
+    }
+};

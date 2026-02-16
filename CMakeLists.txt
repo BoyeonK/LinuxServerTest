@@ -22,19 +22,19 @@ FetchContent_MakeAvailable(MyUtils)
 
 set(PROJECT_SOURCES
     src/main.cpp
-    src/TestCode/MultiThreadTest.cpp
     src/TestCode/NetAddress.cpp
-    src/TestCode/LobbySession.cpp
-    src/TestCode/LobbyServerService.cpp
-    src/TestCode/ThreadLocal.cpp
     src/IPCSocket.cpp
+    src/IOTask.cpp
+    src/HTTPserver.cpp
+    src/IoUringWrapper.cpp
+    src/ObjectPool.cpp
 
-    src/TestCode/MultiThreadTest.h 
     src/TestCode/NetAddress.h
-    src/TestCode/LobbySession.h
-    src/TestCode/LobbyServerService.h
-    src/TestCode/ThreadLocal.h
     src/IPCSocket.h
+    src/IOTask.h
+    src/HTTPserver.h
+    src/IoUringWrapper.h
+    src/ObjectPool.h
 )
 
 # 내 서버 실행 파일 생성

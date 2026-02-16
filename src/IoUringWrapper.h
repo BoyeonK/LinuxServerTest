@@ -5,7 +5,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include "NetAddress.h"
 
 class IoUringWrapper {
 public:
@@ -29,38 +28,3 @@ public:
 private:
     struct io_uring _ring;
 };
-
-class Listener {
-public:
-    Listener(uint16_t port);
-    ~Listener();
-
-    Listener(const Listener&) = delete;
-    Listener& operator=(const Listener&) = delete;
-
-    int GetSocket() const { return _listenSocket; }
-
-private:
-    bool Start(uint16_t port);
-    void Close();
-
-private:
-    int _listenSocket = -1;
-};
-
-class Accepter {
-public:
-    Accepter() {};
-    ~Accepter() {};
-    void Init(Listener& listener) {};
-
-    Accepter(const Accepter&) = delete;
-    Accepter& operator=(const Accepter&) = delete;
-
-    void RegisterAccept();
-
-private:
-    int _listenSocket = -1;
-};
-
-extern thread_local IoUringWrapper LThreadRing;

@@ -1,7 +1,7 @@
 const net = require('net');
 const protobuf = require("protobufjs");
 
-const SOCKET_PATH = '/tmp/game.sock';
+const SOCKET_PATH = '/tmp/https.sock';
 
 console.log('[Node.js] Connecting to IPC server...');
 
