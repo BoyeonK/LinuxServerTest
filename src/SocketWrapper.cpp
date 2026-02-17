@@ -1,3 +1,4 @@
+#include <iostream>
 #include "SocketWrapper.h"
 #include "S2HPacketHandler.h"
 #include "IoUringWrapper.h"
@@ -61,12 +62,15 @@ void HttpIPCSession::OnReadComplete(int readBytes) {
         }
 
         PacketHeader header = *(reinterpret_cast<PacketHeader*>(_recvBuffer.ProcessedPos()));
+        std::cout << "id : " << header._id << " size : " << header._size << std::endl;
+
         if (readBytes < header._size) {
             return;
         }
 
         if (S2HPacketHandler::HandlePacket(this, _recvBuffer.ProcessedPos(), readBytes)){
             _recvBuffer.OnProcess(readBytes);
+            Recv();
         } 
         else {
             //TODO : 뭔가 잘못됨 뭔가 뭔가임

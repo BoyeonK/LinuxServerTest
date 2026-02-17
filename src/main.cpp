@@ -3,7 +3,9 @@
 #include <atomic>
 #include <thread>
 #include <chrono>
+#include <filesystem>
 #include "GlobalVariable.h"
+#include "S2HPacketHandler.h"
 #include "IoUringWrapper.h"
 #include "IOTask.h"
 #include "HTTPserver.h"
@@ -11,6 +13,11 @@
 #include "ObjectPool.h"
 
 int main() {
+    if (!std::filesystem::exists("IPCProtocol.proto")) {
+        std::cerr << "Error: IPCProtocol.proto not found in execution directory!" << std::endl;
+    }
+    S2HPacketHandler::Init();
+
     std::unique_ptr<IPCListenSocketWrapper> httpsIpc;
     std::unique_ptr<IPCListenSocketWrapper> dedicateIpc;
     pid_t nodePid;

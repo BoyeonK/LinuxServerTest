@@ -33,6 +33,8 @@ set(PROJECT_SOURCES
     src/RecvBuffer.cpp
     src/GlobalVariable.cpp
 
+    src/IPCProtocol/IPCProtocol.pb.cc
+
     src/TestCode/NetAddress.h
     src/SocketWrapper.h
     src/IOTask.h
@@ -43,6 +45,8 @@ set(PROJECT_SOURCES
     src/S2HPacketHandler.h
     src/RecvBuffer.h
     src/GlobalVariable.h
+
+    src/IPCProtocol/IPCProtocol.pb.h
 )
 
 # 내 서버 실행 파일 생성
@@ -57,4 +61,10 @@ target_link_libraries(LinuxServerTest PRIVATE
     MyUtils::MyUtils 
     ${URING_LIB}
     ${Protobuf_LIBRARIES}
+)
+
+add_custom_command(TARGET LinuxServerTest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_CURRENT_SOURCE_DIR}/IPCProtocol/IPCProtocol.proto"
+            "$<TARGET_FILE_DIR:LinuxServerTest>/IPCProtocol.proto"
 )

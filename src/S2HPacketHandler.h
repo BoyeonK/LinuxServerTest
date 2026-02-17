@@ -17,8 +17,8 @@ enum : uint16_t {
 
 #pragma pack(push, 1)
 struct PacketHeader {
-	uint16_t _size;
 	uint16_t _id;
+	uint16_t _size;
 };
 #pragma pack(pop)
 
