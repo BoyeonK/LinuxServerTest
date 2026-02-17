@@ -19,11 +19,6 @@ void RecvBuffer::Clean() {
 }
 
 bool RecvBuffer::OnRead(int32_t readSize) {
-    //받아 올 크기보다, 남아있는 Recv버퍼의 크기가 작다면 false.
-    if (readSize > FreeSize())
-		return false;
-
-	//아니면 true를 반환.
 	_readPos += readSize;
 	return true;
 }

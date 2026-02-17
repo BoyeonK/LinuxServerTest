@@ -20,11 +20,12 @@ void H2SAcceptTask::callback(int result) {
     _uring->RegisterAcceptTask(fd, this);  // 다음 accept
 }
 
-/*
-H2SReadTask::H2SReadTask(int fd, void* buf, size_t len, HttpIPCSession* session) : _session(session) {
+
+H2SReadTask::H2SReadTask(int fd, void* buf, size_t len, HttpIPCSession* pSession) : _pSession(pSession) {
     this->fd = fd;
     this->type = IOTaskType::READ_IPC_HTTP;
-
-
 }
-*/
+
+void H2SReadTask::callback(int readBytes) {
+    _pSession->OnReadComplete(readBytes);
+}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "IPCSocketWrapper.h"
+#include "SocketWrapper.h"
 
 class IoUringWrapper;
 
@@ -44,13 +44,11 @@ private:
     IoUringWrapper* _uring;
 };
 
-/*
 class H2SReadTask : public IOTask {
 public:
-    H2SReadTask(int fd, void* buf, size_t len, HttpIPCSession* session);
-    void callback(int result) override;
+    H2SReadTask(int fd, void* buf, size_t len, HttpIPCSession* pSession);
+    void callback(int readBytes) override;
     
 private:
-    HttpIPCSession* _session;
+    HttpIPCSession* _pSession;
 };
-*/

@@ -35,17 +35,15 @@ private:
     int _queueSize;
 };
 
-class IPCSession {
+class Session {
 public:
-    IPCSession(int fd, IoUringWrapper* uring);
-    virtual ~IPCSession();
+    Session(int fd, IoUringWrapper* uring);
+    virtual ~Session();
 
-    virtual void RegisterRead() {};
+    virtual void Recv() {};
     virtual void Send(SendBuffer* sendBuffer) {};
-
     int GetFd() const { return _fd; }
 
-protected:
     virtual void OnReadComplete(int result) {};
     virtual void OnWriteComplete(int result) {};
 
@@ -54,15 +52,14 @@ protected:
     RecvBuffer _recvBuffer;
 };
 
-class HttpIPCSession : public IPCSession {
+class HttpIPCSession : public Session {
 public:
     HttpIPCSession(int fd, IoUringWrapper* uring);
     ~HttpIPCSession();
 
-    void RegisterRead() override;
+    void Recv() override;
     void Send(SendBuffer* sendBuffer) override;
 
-protected:
-    void OnReadComplete(int result) override;
+    void OnReadComplete(int readBytes) override;
     void OnWriteComplete(int result) override;
 };

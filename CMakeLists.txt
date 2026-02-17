@@ -23,7 +23,7 @@ FetchContent_MakeAvailable(MyUtils)
 set(PROJECT_SOURCES
     src/main.cpp
     src/TestCode/NetAddress.cpp
-    src/IPCSocketWrapper.cpp
+    src/SocketWrapper.cpp
     src/IOTask.cpp
     src/HTTPserver.cpp
     src/IoUringWrapper.cpp
@@ -33,14 +33,13 @@ set(PROJECT_SOURCES
     src/RecvBuffer.cpp
 
     src/TestCode/NetAddress.h
-    src/IPCSocketWrapper.h
+    src/SocketWrapper.h
     src/IOTask.h
     src/HTTPserver.h
     src/IoUringWrapper.h
     src/ObjectPool.h
     src/SendBuffer.h
     src/S2HPacketHandler.h
-    src/S2HPacketMaker.h
     src/RecvBuffer.h
 )
 

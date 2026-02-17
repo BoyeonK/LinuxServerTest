@@ -30,6 +30,15 @@ void IoUringWrapper::ExecuteCQTask() {
     }
 }
 
+void IoUringWrapper::RegisterRecv(int fd, void* buf, int32_t len, IOTask* task) {
+    struct io_uring_sqe *sqe = io_uring_get_sqe(&_ring);
+
+    io_uring_prep_read(sqe, fd, buf, len, 0);
+    io_uring_sqe_set_data(sqe, task);
+
+    io_uring_submit(&_ring);
+}
+
 void IoUringWrapper::RegisterSendTask(int socketFd, IOTask* task) {
     
 }

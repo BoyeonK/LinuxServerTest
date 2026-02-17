@@ -19,6 +19,7 @@ public:
     IoUringWrapper& operator=(const IoUringWrapper&) = delete;
 
     void ExecuteCQTask();
+    void RegisterRecv(int fd, void* buf, int32_t len, IOTask* task);
     void RegisterSendTask(int socketFd, IOTask* task);
     void RegisterAcceptTask(int listenFd, IOTask* task);
 
