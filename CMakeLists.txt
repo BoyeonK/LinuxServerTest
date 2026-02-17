@@ -31,6 +31,7 @@ set(PROJECT_SOURCES
     src/SendBuffer.cpp
     src/S2HPacketHandler.cpp
     src/RecvBuffer.cpp
+    src/GlobalVariable.cpp
 
     src/TestCode/NetAddress.h
     src/SocketWrapper.h
@@ -41,6 +42,7 @@ set(PROJECT_SOURCES
     src/SendBuffer.h
     src/S2HPacketHandler.h
     src/RecvBuffer.h
+    src/GlobalVariable.h
 )
 
 # 내 서버 실행 파일 생성

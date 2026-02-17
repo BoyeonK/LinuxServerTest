@@ -3,6 +3,7 @@
 #include <atomic>
 #include <thread>
 #include <chrono>
+#include "GlobalVariable.h"
 #include "IoUringWrapper.h"
 #include "IOTask.h"
 #include "HTTPserver.h"

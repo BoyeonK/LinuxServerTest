@@ -1,16 +1,12 @@
 #include "IoUringWrapper.h"
 #include "IOTask.h"
 
-IoUringWrapper* IORing = new IoUringWrapper();
-
 IoUringWrapper::IoUringWrapper() {
     int ret = io_uring_queue_init(4096, &_ring, 0);
     if (ret < 0) {
         std::cerr << "링을 만들수가 없엉 : " << ret << std::endl;
         exit(1); // 링 못 만들면 서버 죽어야 함
     }
-
-    //_sendBufferChunkRef = make_shared<SendBufferChunk>();
 }
 
 IoUringWrapper::~IoUringWrapper() {

@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "IPCProtocol/IPCProtocol.pb.h"
+#include "GlobalVariable.h"
 #include "SocketWrapper.h"
 #include "IoUringWrapper.h"
 

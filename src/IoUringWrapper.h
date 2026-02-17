@@ -29,6 +29,3 @@ private:
     struct io_uring _ring;
     std::shared_ptr<SendBufferChunk> _sendBufferChunkRef = nullptr;
 };
-
-extern IoUringWrapper* IORing;
-
