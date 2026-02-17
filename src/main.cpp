@@ -23,9 +23,8 @@ int main() {
         if (launchNode(nodePid))
             std::cout << "Node.js server launched (PID: " << nodePid << ")" << std::endl;
 
-        AcceptTask* httpAcceptTask = ObjectPool<AcceptTask>::Acquire(
+        H2SAcceptTask* httpAcceptTask = ObjectPool<H2SAcceptTask>::Acquire(
             httpsIpc->GetFd(), 
-            ACCEPT_IPC, 
             IORing
         );
         IORing->RegisterAcceptTask(httpsIpc->GetFd(), httpAcceptTask);

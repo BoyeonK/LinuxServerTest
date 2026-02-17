@@ -1,15 +1,23 @@
 #pragma once
 
 #include <iostream>
+#include "IPCSocketWrapper.h"
 
 class IoUringWrapper;
 
 enum IOTaskType {
-    CONNECT_IPC,
-    DISCONNECT_IPC,
-    ACCEPT_IPC,
-    READ_IPC,
-    SEND_IPC,
+    CONNECT_IPC_HTTP,
+    DISCONNECT_IPC_HTTP,
+    ACCEPT_IPC_HTTP,
+    READ_IPC_HTTP,
+    SEND_IPC_HTTP,
+    
+    CONNECT_IPC_DEDICATE,
+    DISCONNECT_IPC_DEDICATE,
+    ACCEPT_IPC_DEDICATE,
+    READ_IPC_DEDICATE,
+    SEND_IPC_DEDICATE,
+
     CONNECT_CLIENT,
     DISCONNECT_CLIENT,
     ACCEPT_CLIENT,
@@ -27,9 +35,9 @@ public:
     virtual void callback(int result) = 0;
 };
 
-class AcceptTask : public IOTask {
+class H2SAcceptTask : public IOTask {
 public:
-    AcceptTask(int listenFd, IOTaskType taskType, IoUringWrapper* uring);
+    H2SAcceptTask(int listenFd, IoUringWrapper* uring);
     void callback(int result) override;
 
 private:
@@ -37,12 +45,12 @@ private:
 };
 
 /*
-class ReadTask : public IOTask {
+class H2SReadTask : public IOTask {
 public:
-    ReadTask(int fd, void* buf, size_t len, IPCSession* session);
+    H2SReadTask(int fd, void* buf, size_t len, HttpIPCSession* session);
     void callback(int result) override;
     
 private:
-    IPCSession* _session;
+    HttpIPCSession* _session;
 };
 */

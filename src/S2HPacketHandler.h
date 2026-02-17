@@ -1,4 +1,6 @@
 #pragma once
+
+#include <cstdint>
 #include "IPCProtocol/IPCProtocol.pb.h"
 #include "IoUringWrapper.h"
 
@@ -18,6 +20,13 @@ bool Handle_Invalid(unsigned char* buffer, int32_t len);
 class S2HPacketHandler {
 public:
 	static SendBuffer* MakeSendBuffer(const IPC_Protocol::HttpWelcome& pkt) { return MakeSendBuffer(pkt, PID_HTTP_WELCOME); }
+
+public:
+	static IPC_Protocol::MainWelcome MakeMainWelcomePkt(int32_t value) {
+        IPC_Protocol::MainWelcome pkt;
+        pkt.set_echo_message(value);
+        return pkt;
+    }
 
 private:
 	template<typename PBType>

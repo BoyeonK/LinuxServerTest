@@ -1,4 +1,5 @@
 #include "IPCSocketWrapper.h"
+#include "IoUringWrapper.h"
 
 void IPCListenSocketWrapper::Init() {
     _listenFd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
@@ -21,19 +22,38 @@ void IPCListenSocketWrapper::Init() {
     }
 }
 
-IPCSession::IPCSession(int fd, IoUringWrapper* uring) {
+IPCSession::IPCSession(int fd, IoUringWrapper* uring) : _fd(fd), _uring(uring) {
 
 }
 
 IPCSession::~IPCSession() {
+    if (_fd != -1)
+        ::close(_fd);
+}
+
+HttpIPCSession::HttpIPCSession(int fd, IoUringWrapper* uring) : IPCSession(fd, uring) {
 
 }
 
-void IPCSession::RegisterRead() {
+HttpIPCSession::~HttpIPCSession() {
 
 }
 
-void IPCSession::Send(SendBuffer* sendBuffer) {
+void HttpIPCSession::RegisterRead() {
+    /*
+    if (_fd == -1 || !_uring) return;
+    struct io_uring_sqe* sqe = io_uring_get_sqe(&_ring);
+    */
+}
+
+void HttpIPCSession::Send(SendBuffer* sendBuffer) {
 
 }
 
+void HttpIPCSession::OnReadComplete(int result) {
+
+}
+
+void HttpIPCSession::OnWriteComplete(int result) {
+
+}

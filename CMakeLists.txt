@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
     src/ObjectPool.cpp
     src/SendBuffer.cpp
     src/S2HPacketHandler.cpp
+    src/RecvBuffer.cpp
 
     src/TestCode/NetAddress.h
     src/IPCSocketWrapper.h
@@ -39,6 +40,8 @@ set(PROJECT_SOURCES
     src/ObjectPool.h
     src/SendBuffer.h
     src/S2HPacketHandler.h
+    src/S2HPacketMaker.h
+    src/RecvBuffer.h
 )
 
 # 내 서버 실행 파일 생성

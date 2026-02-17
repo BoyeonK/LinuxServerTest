@@ -6,8 +6,10 @@
 #include <cstring>
 #include <stdexcept>
 
+#include "RecvBuffer.h"
 #include "SendBuffer.h"
-#include "IoUringWrapper.h"
+
+class IoUringWrapper;
 
 class IPCListenSocketWrapper {
 public:
@@ -38,8 +40,8 @@ public:
     IPCSession(int fd, IoUringWrapper* uring);
     virtual ~IPCSession();
 
-    void RegisterRead();
-    void Send(SendBuffer* sendBuffer);
+    virtual void RegisterRead() {};
+    virtual void Send(SendBuffer* sendBuffer) {};
 
     int GetFd() const { return _fd; }
 
@@ -49,5 +51,18 @@ protected:
 
     int _fd;
     IoUringWrapper* _uring;
-    std::array<uint8_t, 65536> _readBuffer;   // read용 버퍼
+    RecvBuffer _recvBuffer;
+};
+
+class HttpIPCSession : public IPCSession {
+public:
+    HttpIPCSession(int fd, IoUringWrapper* uring);
+    ~HttpIPCSession();
+
+    void RegisterRead() override;
+    void Send(SendBuffer* sendBuffer) override;
+
+protected:
+    void OnReadComplete(int result) override;
+    void OnWriteComplete(int result) override;
 };

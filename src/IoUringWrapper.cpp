@@ -30,6 +30,10 @@ void IoUringWrapper::ExecuteCQTask() {
     }
 }
 
+void IoUringWrapper::RegisterSendTask(int socketFd, IOTask* task) {
+    
+}
+
 void IoUringWrapper::RegisterAcceptTask(int listenFd, IOTask* task) {
     struct io_uring_sqe* sqe = io_uring_get_sqe(&_ring);
     if (!sqe) return;
