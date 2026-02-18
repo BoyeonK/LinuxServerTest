@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  title: "Game Logic Gateway API"
+  description: "클라이언트와 C++ 서버 간의 중계를 위한 Node.js REST API 명세서"
+  version: "1.0.0"
+
+# 서버 접속 정보
+servers:
+  - url: http://localhost:3000
+    description: "로컬 개발 환경"
+
+# API 경로 정의
+paths:
+  # 1. 상태 체크 API
+  /api/check/{id}:
+    get:
+      summary: "특정 세션/유저 상태 확인"
+      tags:
+        - System
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "조회할 대상의 식별자"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "조회 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+        '400':
+          description: "잘못된 요청 파라미터"
+        '503':
+          description: "C++ 서버(IPC) 연결 불능"
+
+  # 2. 로그인 API (예시용 POST 방식)
+  /api/login/{id}:
+    post:
+      summary: "간이 로그인 요청"
+      tags:
+        - Auth
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "로그인 시도할 유저 ID"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "로그인 처리 완료"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+        '401':
+          description: "인증 실패"
+        '503':
+          description: "로직 서버 응답 없음"
+
+# 공용 데이터 구조 (Schema) 정의
+components:
+  schemas:
+    # 모든 응답에 공통으로 사용할 스키마
+    CommonResponse:
+      type: object
+      required:
+        - success
+        - code
+      properties:
+        success:
+          type: boolean
+          description: "요청 처리 성공 여부"
+          example: true
+        code:
+          type: integer
+          description: "HTTP 상태 코드 혹은 자체 비즈니스 코드"
+          example: 200
+        data:
+          type: object
+          description: "실제 결과 데이터 (성공 시에만 포함)"
+          nullable: true
+          properties:
+            receivedId:
+              type: string
+              example: "User_01"
+            cppStatus:
+              type: string
+              description: "C++ 서버로부터 수신한 상태 값"
+              example: "ACTIVE"
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+          
+    # 에러 발생 시 상세 정보를 담는 스키마
+    ErrorDetail:
+      type: object
+      nullable: true
+      properties:
+        message:
+          type: string
+          description: "에러 사유"
+          example: "Connection to C++ server failed"
+        code:
+          type: string
+          description: "내부 에러 식별 코드"
+          example: "ERR_IPC_DISCONNECTED"
