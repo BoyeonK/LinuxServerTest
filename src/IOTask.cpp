@@ -18,13 +18,12 @@ void H2SAcceptTask::callback(int result) {
     int httpIPCsockFd = result;
     std::cout << "New HTTP IPC Accepted! FD: " << httpIPCsockFd << std::endl;
 
-    //TODO : 이 clientFd로 IPCSession을 만들고, 해당 IPCSession으로 Read요청.
     if (HttpSession == nullptr) {
         HttpSession = new HttpIPCSession(httpIPCsockFd, _uring);
         HttpSession->Recv();
     }
 
-    _uring->RegisterAcceptTask(fd, this);  // 다음 accept
+    //_uring->RegisterAcceptTask(fd, this); H2S 소켓은 유일해야 함. 나중에 문제가 생겼을 때, 재실행 로직은 구현 예정 없음 ㅋ
     ObjectPool<H2SAcceptTask>::Release(this);
 }
 

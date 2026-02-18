@@ -1,5 +1,8 @@
 const net = require('net');
 const protobuf = require("protobufjs");
+const express = require('express');
+const app = express();
+const port = 3000;
 
 const SOCKET_PATH = '/tmp/https.sock';
 
@@ -65,5 +68,35 @@ protobuf.load("IPCProtocol.proto", (err, root) => {
         console.log('[Node.js] Received from C++:', data);
     });
 });
+
+// JSON 데이터 파싱을 위한 설정
+app.use(express.json());
+
+// 1. GET 요청 테스트
+// 브라우저에서 http://localhost:3000/api/check/123 접속
+app.get('/api/check/:id', (req, res) => {
+    const requestId = req.params.id;
+    
+    // 서버 콘솔에 수신 사실 출력
+    console.log(`\n[알림] REST API 요청을 받았습니다!`);
+    console.log(`[내용] 요청 ID: ${requestId}`);
+    console.log(`[시간] ${new Date().toLocaleString()}`);
+
+    // 클라이언트(브라우저)에게 응답 전송
+    res.json({
+        result: "OK",
+        message: "Node.js가 요청을 성공적으로 수신했습니다.",
+        receivedId: requestId
+    });
+});
+
+app.listen(port, () => {
+    console.log(`=================================`);
+    console.log(`  REST API 수신 대기 중...`);
+    console.log(`  URL: http://localhost:3000/api/check/test`);
+    console.log(`=================================`);
+});
+
+
 
 setInterval(() => {}, 1000);
