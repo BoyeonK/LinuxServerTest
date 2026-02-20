@@ -65,6 +65,6 @@ target_link_libraries(LinuxServerTest PRIVATE
 
 add_custom_command(TARGET LinuxServerTest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-            "${CMAKE_CURRENT_SOURCE_DIR}/IPCProtocol/IPCProtocol.proto"
-            "$<TARGET_FILE_DIR:LinuxServerTest>/IPCProtocol.proto"
+            "${CMAKE_SOURCE_DIR}/IPCProtocol/IPCProtocol.proto"
+            "${CMAKE_SOURCE_DIR}/HTTPServer/IPCProtocol.proto"
 )

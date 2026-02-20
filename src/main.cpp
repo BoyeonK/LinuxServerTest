@@ -13,9 +13,6 @@
 #include "ObjectPool.h"
 
 int main() {
-    if (!std::filesystem::exists("IPCProtocol.proto")) {
-        std::cerr << "Error: IPCProtocol.proto not found in execution directory!" << std::endl;
-    }
     S2HPacketHandler::Init();
 
     std::unique_ptr<IPCListenSocketWrapper> httpsIpc;

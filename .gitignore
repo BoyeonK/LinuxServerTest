@@ -16,3 +16,5 @@ node_modules/
 
 *.pb.cc
 *.pb.h
+
+.env

@@ -313,4 +313,3 @@ components:
           type: string
           description: "인게임 진입 시 사용할 방 입장 권한 토큰"
           example: "room_token_abc"
-  
