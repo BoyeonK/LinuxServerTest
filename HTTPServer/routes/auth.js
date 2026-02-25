@@ -38,6 +38,17 @@ router.post('/signup', async (req, res) => {
     const { id, password } = req.body;
     if (!id || !password) return res.status(400).json(makeResponse(false, 400, null, { message: "ID와 Password가 필요합니다.", code: "ERR_BAD_REQUEST" }));
 
+    const idRegex = /^[a-zA-Z0-9]{4,16}$/;
+    const pwRegex = /^[a-zA-Z0-9!@#$%^&*()]{4,16}$/;
+
+    if (!idRegex.test(id)) {
+        return res.status(400).json(makeResponse(false, 400, null, { message: "ID는 4~16자의 영문, 숫자 조합이어야 합니다.", code: "ERR_INVALID_ID" }));
+    }
+
+    if (!pwRegex.test(password)) {
+        return res.status(400).json(makeResponse(false, 400, null, { message: "비밀번호는 4~16자의 영문, 숫자, 특수문자(!@#$%^&*())로만 구성되어야 합니다.", code: "ERR_INVALID_PW" }));
+    }
+
     try {
         const [rows] = await pool.query('SELECT login_id FROM users WHERE login_id = ?', [id]);
         if (rows.length > 0) {
@@ -73,6 +84,16 @@ router.post('/signup', async (req, res) => {
 // ==========================================================
 router.post('/login', async (req, res) => {
     const { id, password } = req.body;
+
+    if (!id || !password) return res.status(400).json(makeResponse(false, 400, null, { message: "ID와 Password가 필요합니다.", code: "ERR_BAD_REQUEST" }));
+
+    // 유효성 검사 (DB 낭비 방지 및 Bcrypt CPU 보호)
+    const idRegex = /^[a-zA-Z0-9]{4,16}$/;
+    const pwRegex = /^[a-zA-Z0-9!@#$%^&*()]{4,16}$/;
+    
+    if (!idRegex.test(id) || !pwRegex.test(password)) {
+        return res.status(400).json(makeResponse(false, 400, null, { message: "ID 또는 비밀번호의 형식이 올바르지 않습니다.", code: "ERR_INVALID_FORMAT" }));
+    }
 
     try {
         // 매치메이킹을 위해 rating과 aggression_level도 DB에서 가져옵니다.
