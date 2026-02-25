@@ -16,10 +16,10 @@ const pool = mysql.createPool({
 async function testDbConnection() {
     try {
         const connection = await pool.getConnection();
-        console.log('[Node.js] Connected to MySQL Database!');
+        console.log('HTTP서버에서 MySQL에 연결 완료');
         connection.release(); // 빌려온 연결을 풀에 다시 반납
     } catch (error) {
-        console.error('[Node.js] MySQL Connection Error:', error.message);
+        console.error('HTTP서버에서 MySQL에 연결 실패:', error.message);
     }
 }
 

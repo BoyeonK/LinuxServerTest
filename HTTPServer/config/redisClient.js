@@ -5,14 +5,14 @@ const redisClient = redis.createClient({
     url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
 });
 
-redisClient.on('error', (err) => console.error('[Redis] Client Error', err));
+redisClient.on('error', (err) => console.error('HTTP서버에서 Redis에러 감지', err));
 
 async function connectRedis() {
     try {
         await redisClient.connect();
-        console.log('[Node.js] Connected to Redis!');
+        console.log('HTTP서버 Redis 연결 성공');
     } catch (err) {
-        console.error('[Node.js] Redis Connection Failed:', err);
+        console.error('HTTP서버 Redis 연결 실패:', err);
     }
 }
 
