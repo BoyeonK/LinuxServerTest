@@ -6,7 +6,7 @@ const { pool } = require('../config/mysqlClient');
 const { makeResponse } = require('../utils/response');
 
 const router = express.Router();
-const saltRounds = 10;
+const saltRounds = 11;
 
 // ==========================================================
 // 회원가입 API
@@ -22,12 +22,22 @@ router.post('/signup', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        await pool.query('INSERT INTO users (login_id, password) VALUES (?, ?)', [id, hashedPassword]);
+        // INSERT 후 생성된 uid를 가져오기 위해 result 객체를 받습니다.
+        const [result] = await pool.query('INSERT INTO users (login_id, password) VALUES (?, ?)', [id, hashedPassword]);
+        const newUid = result.insertId;
 
-        // 성공 시 Redis 세션 발급 및 로그인
         const sessionId = "sess_" + crypto.randomUUID();
-        await redisClient.set(sessionId, id, { EX: 3600 });
-        
+
+        await redisClient.hSet(sessionId, {
+            user_id: id,
+            db_id: newUid.toString(),
+            user_type: "1",
+            rating: "1500",
+            aggression: "4"
+        });
+        await redisClient.expire(sessionId, 3600);
+        await redisClient.set(`user_sess:${id}`, sessionId, { EX: 3600 });
+
         res.status(201).json(makeResponse(true, 201, { sessionId }));
     } catch (error) {
         console.error("[Auth] Signup Error:", error);
@@ -42,25 +52,72 @@ router.post('/login', async (req, res) => {
     const { id, password } = req.body;
 
     try {
-        const [rows] = await pool.query('SELECT login_id, password FROM users WHERE login_id = ?', [id]);
+        // 매치메이킹을 위해 rating과 aggression_level도 DB에서 가져옵니다.
+        const [rows] = await pool.query('SELECT uid, login_id, password, rating, aggression_level FROM users WHERE login_id = ?', [id]);
         if (rows.length === 0) {
             return res.status(401).json(makeResponse(false, 401, null, { message: "존재하지 않는 ID입니다." }));
         }
 
         const user = rows[0];
-
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json(makeResponse(false, 401, null, { message: "비밀번호가 틀렸습니다." }));
         }
 
-        // 성공 시 Redis 세션 발급 및 로그인
+        // 중복 로그인 방지
+        const oldSessionId = await redisClient.get(`user_sess:${id}`);
+        if (oldSessionId) {
+            await redisClient.del(oldSessionId);
+            console.log(`[Auth] 기존 접속 끊기: ${id}`);
+        }
+
         const sessionId = "sess_" + crypto.randomUUID();
-        await redisClient.set(sessionId, id, { EX: 3600 });
-        
+
+        // DB에서 가져온 최신 rating과 aggression 캐싱
+        await redisClient.hSet(sessionId, {
+            user_id: id,
+            db_id: user.uid.toString(),
+            user_type: "1",
+            rating: user.rating.toString(),
+            aggression: user.aggression_level.toString()
+        });
+        await redisClient.expire(sessionId, 3600);
+        await redisClient.set(`user_sess:${id}`, sessionId, { EX: 3600 });
+
         res.status(200).json(makeResponse(true, 200, { sessionId }));
     } catch (error) {
         console.error("[Auth] Login Error:", error);
+        res.status(500).json(makeResponse(false, 500, null, { message: "서버 내부 오류", code: "ERR_INTERNAL" }));
+    }
+});
+
+// ==========================================================
+// 게스트 로그인 API
+// ==========================================================
+router.post('/guest', async (req, res) => {
+    try {
+        const guestId = "guest_" + crypto.randomUUID().split('-')[0];
+        const sessionId = "sess_" + crypto.randomUUID();
+
+        const guestDbId = await redisClient.decr('guest_uid_counter');
+
+        // 게스트 Hash 저장
+        await redisClient.hSet(sessionId, {
+            user_id: guestId,
+            db_id: guestDbId.toString(), // 음수 ID (-1, -2 ...) 할당
+            user_type: "0",
+            rating: "1500",
+            aggression: "4"
+        });
+        await redisClient.expire(sessionId, 3600); 
+
+        await redisClient.set(`user_sess:${guestId}`, sessionId, { EX: 3600 });
+
+        console.log(`[Auth] 게스트 접속: ${guestId} (임시 UID: ${guestDbId})`);
+        
+        res.status(200).json(makeResponse(true, 200, { sessionId, guestId }));
+    } catch (error) {
+        console.error("[Auth] Guest Login Error:", error);
         res.status(500).json(makeResponse(false, 500, null, { message: "서버 내부 오류", code: "ERR_INTERNAL" }));
     }
 });

@@ -5,7 +5,6 @@ CREATE TABLE users (
     password CHAR(60) NOT NULL,
     rating INT DEFAULT 1500,
     aggression_level INT DEFAULT 4,
-    inventory JSON DEFAULT ('{}'),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
