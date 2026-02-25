@@ -8,6 +8,29 @@ const { makeResponse } = require('../utils/response');
 const router = express.Router();
 const saltRounds = 11;
 
+const scripts = {
+    logout: `
+        local sessionId = KEYS[1]
+        local userId = redis.call('HGET', sessionId, 'user_id')
+        
+        -- 이미 세션이 없으면 0 반환 (성공 처리용)
+        if not userId then
+            return 0
+        end
+
+        -- 인증 세션 파기
+        redis.call('DEL', sessionId)
+
+        -- 중복 방지 키 파기
+        local userSessKey = 'user_sess:' .. userId
+        if redis.call('GET', userSessKey) == sessionId then
+            redis.call('DEL', userSessKey)
+        end
+
+        return 1
+    `
+};
+
 // ==========================================================
 // 회원가입 API
 // ==========================================================
@@ -38,7 +61,7 @@ router.post('/signup', async (req, res) => {
         await redisClient.expire(sessionId, 3600);
         await redisClient.set(`user_sess:${id}`, sessionId, { EX: 3600 });
 
-        res.status(201).json(makeResponse(true, 201, { sessionId }));
+        res.status(201).json(makeResponse(true, 201, { sessionId, uid: newUid }));
     } catch (error) {
         console.error("[Auth] Signup Error:", error);
         res.status(500).json(makeResponse(false, 500, null, { message: "서버 내부 오류", code: "ERR_INTERNAL" }));
@@ -84,7 +107,7 @@ router.post('/login', async (req, res) => {
         await redisClient.expire(sessionId, 3600);
         await redisClient.set(`user_sess:${id}`, sessionId, { EX: 3600 });
 
-        res.status(200).json(makeResponse(true, 200, { sessionId }));
+        res.status(200).json(makeResponse(true, 200, { sessionId, uid:user.uid }));
     } catch (error) {
         console.error("[Auth] Login Error:", error);
         res.status(500).json(makeResponse(false, 500, null, { message: "서버 내부 오류", code: "ERR_INTERNAL" }));
@@ -115,9 +138,24 @@ router.post('/guest', async (req, res) => {
 
         console.log(`[Auth] 게스트 접속: ${guestId} (임시 UID: ${guestDbId})`);
         
-        res.status(200).json(makeResponse(true, 200, { sessionId, guestId }));
+        res.status(200).json(makeResponse(true, 200, { sessionId, guestId, uid:guestDbId }));
     } catch (error) {
         console.error("[Auth] Guest Login Error:", error);
+        res.status(500).json(makeResponse(false, 500, null, { message: "서버 내부 오류", code: "ERR_INTERNAL" }));
+    }
+});
+
+router.post('/logout', async (req, res) => {
+    // 보통 인증 티켓(세션 ID)은 보안상 HTTP Header에 담아 보내는 것이 정석입니다.
+    const sessionId = req.headers['x-session-id'];
+    if (!sessionId) return res.status(400).json(makeResponse(false, 400, null, { message: "세션 ID가 없습니다." }));
+
+    try {
+        const result = await redisClient.eval(scripts.logout, { keys: [sessionId] });
+        // result가 0이든 1이든, 결과적으로 로그아웃 상태가 된 것이니 모두 200 성공 응답
+        res.status(200).json(makeResponse(true, 200, { message: "로그아웃 되었습니다." }));
+    } catch (error) {
+        console.error("[Auth] Logout Error:", error);
         res.status(500).json(makeResponse(false, 500, null, { message: "서버 내부 오류", code: "ERR_INTERNAL" }));
     }
 });
