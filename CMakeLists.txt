@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_library(URING_LIB uring REQUIRED)
+find_library(REDIS_LIB redis++ REQUIRED)
+find_library(HIREDIS_LIB hiredis REQUIRED)
+find_library(MYSQL_LIB mysqlcppconn REQUIRED)
 
 set(Protobuf_USE_STATIC_LIBS ON)
 find_package(Protobuf REQUIRED)
@@ -32,6 +35,8 @@ set(PROJECT_SOURCES
     src/S2HPacketHandler.cpp
     src/RecvBuffer.cpp
     src/GlobalVariable.cpp
+    src/EnvSetter.cpp
+    src/RedisController.cpp
 
     src/IPCProtocol/IPCProtocol.pb.cc
 
@@ -45,6 +50,8 @@ set(PROJECT_SOURCES
     src/S2HPacketHandler.h
     src/RecvBuffer.h
     src/GlobalVariable.h
+    src/EnvSetter.h
+    src/RedisController.h
 
     src/IPCProtocol/IPCProtocol.pb.h
 )
@@ -61,10 +68,20 @@ target_link_libraries(LinuxServerTest PRIVATE
     MyUtils::MyUtils 
     ${URING_LIB}
     ${Protobuf_LIBRARIES}
+    redis++
+    hiredis
+    mysqlcppconn
+    pthread
 )
 
 add_custom_command(TARGET LinuxServerTest POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
             "${CMAKE_SOURCE_DIR}/IPCProtocol/IPCProtocol.proto"
             "${CMAKE_SOURCE_DIR}/HTTPServer/IPCProtocol.proto"
+)
+
+add_custom_command(TARGET LinuxServerTest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_SOURCE_DIR}/HTTPServer/.env"
+            "${CMAKE_CURRENT_BINARY_DIR}/.env"
 )

@@ -3,5 +3,6 @@
 #include "IoUringWrapper.h"
 #include "SocketWrapper.h"
 
-IoUringWrapper* IORing = new IoUringWrapper();
+IoUringWrapper* IORing = nullptr;
 HttpIPCSession* HttpSession = nullptr;
+sw::redis::Redis* pRedis = nullptr;
