@@ -5,3 +5,23 @@
 | `item_meta` | **Hash** | 영구(None) | 아이템 마스터 정보 | `item_name: "돌", item_type: "resource", description: "그냥 돌"` (이름, 분류, 설명) |
 | `sess:<UUID>` | **Hash** | 1시간 (3600s) | 클라이언트 인증용 세션 | `user_id: "tetepiti149", db_id: "13", user_type: "1", rating:"1500", aggression: "4"` (유저 ID) |
 | `user_sess:<ID>` | **String** | 1시간 (3600s) | 중복 로그인 방지용 | `"sess_1234abcd..."` (세션 UUID) |
+| `ticket_<UUID>` | **Hash** | 5분 (300s) | 매치메이킹 대기열 티켓 및 상태 | 아래 설명 |
+
+매칭 티켓
+
+[초기 상태: /start 진입 시]
+
+- uid: "13" (데이터베이스 PK)
+- user_id: "tetepiti149" (로그인 ID)
+- rating: "1500" (매치메이킹 점수)
+- aggression: "4" (유저 성향)
+- mapId: "0" (선택한 맵 ID)
+- items: '[{"itemId": 101, "quantity": 5}]' (장착 아이템 JSON 문자열)
+- status: "WAITING"
+
+[매칭 완료: C++ 서버가 matchSuccess Lua 실행 시 추가됨]
+
+- status: "SUCCESS" (업데이트됨)
+- udpServerIp: "127.0.0.1" (데디케이티드 서버 IP)
+- udpServerPort: "7777" (데디케이티드 서버 포트)
+- roomToken: "room_abc123" (방 입장용 보안 토큰)

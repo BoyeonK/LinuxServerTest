@@ -9,3 +9,7 @@ message MainWelcome {
 message HttpWelcome {
     int32 echo_message = 1;
 }
+
+message HttpMatchMake {
+    string ticket_redis_key = 1;
+}
