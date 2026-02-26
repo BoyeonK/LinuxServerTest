@@ -87,7 +87,7 @@ router.post('/login', async (req, res) => {
 
     if (!id || !password) return res.status(400).json(makeResponse(false, 400, null, { message: "ID와 Password가 필요합니다.", code: "ERR_BAD_REQUEST" }));
 
-    // 유효성 검사 (DB 낭비 방지 및 Bcrypt CPU 보호)
+    // 유효성 검사
     const idRegex = /^[a-zA-Z0-9]{4,16}$/;
     const pwRegex = /^[a-zA-Z0-9!@#$%^&*()]{4,16}$/;
     
@@ -96,7 +96,7 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        // 매치메이킹을 위해 rating과 aggression_level도 DB에서 가져옵니다.
+        // 매치메이킹을 위해 rating과 aggression_level을 DB에서 가져옴.
         const [rows] = await pool.query('SELECT uid, login_id, password, rating, aggression_level FROM users WHERE login_id = ?', [id]);
         if (rows.length === 0) {
             return res.status(401).json(makeResponse(false, 401, null, { message: "존재하지 않는 ID입니다." }));
@@ -167,7 +167,6 @@ router.post('/guest', async (req, res) => {
 });
 
 router.post('/logout', async (req, res) => {
-    // 보통 인증 티켓(세션 ID)은 보안상 HTTP Header에 담아 보내는 것이 정석입니다.
     const sessionId = req.headers['x-session-id'];
     if (!sessionId) return res.status(400).json(makeResponse(false, 400, null, { message: "세션 ID가 없습니다." }));
 
