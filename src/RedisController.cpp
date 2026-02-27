@@ -15,7 +15,7 @@ namespace RedisController {
         try {
             //Lua Script사용
             redis.command("EVAL", "local keys = redis.call('keys', ARGV[1]) for i, k in ipairs(keys) do redis.call('del', k) end return #keys", 0, "item_meta:*");
-            std::cout << "Redis의 이전 item_meta 데이터 삭제" << std::endl;
+            std::cout << "C2-1 - OK : Redis의 이전 item_meta 데이터 삭제" << std::endl;
 
             std::unique_ptr<sql::PreparedStatement> pstmt(
                 db_conn->prepareStatement("SELECT item_id, item_name, item_type, description FROM items")
@@ -41,10 +41,10 @@ namespace RedisController {
 
             if (has_data) {
                 pipe.exec();
-                std::cout << "아이템 메타 데이터 로드 완" << std::endl;
+                std::cout << "C2-2 - OK : 아이템 메타 데이터 로드 완" << std::endl;
             }
         } catch (const std::exception& e) {
-            std::cerr << "Redis 초기화 오류: " << e.what() << std::endl;
+            std::cerr << "C2 - X : Redis 초기화 오류: " << e.what() << std::endl;
         }
     }
 }

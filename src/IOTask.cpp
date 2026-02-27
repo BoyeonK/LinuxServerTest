@@ -10,13 +10,13 @@ H2SAcceptTask::H2SAcceptTask(int listenFd, IoUringWrapper* uring) : _uring(uring
 
 void H2SAcceptTask::callback(int result) {
     if (result < 0) {
-        std::cerr << "Accept failed: " << result << std::endl;
+        std::cerr << "C3-3 - X HTTP IPC 연결 실패: " << result << std::endl;
         _uring->RegisterAcceptTask(fd, this);
         return;
     }
 
     int httpIPCsockFd = result;
-    std::cout << "New HTTP IPC Accepted! FD: " << httpIPCsockFd << std::endl;
+    std::cout << "C3-3 - OK HTTP IPC 연결 성공 FD: " << httpIPCsockFd << std::endl;
 
     if (HttpSession == nullptr) {
         HttpSession = new HttpIPCSession(httpIPCsockFd, _uring);

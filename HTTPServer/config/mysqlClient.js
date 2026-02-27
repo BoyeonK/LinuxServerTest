@@ -13,16 +13,16 @@ const pool = mysql.createPool({
 });
 
 // 테스트하는 함수
-async function testDbConnection() {
+async function DbConnection() {
     try {
         const connection = await pool.getConnection();
-        console.log('HTTP서버에서 MySQL에 연결 완료');
+        console.log('H4 - OK : HTTP서버에서 MySQL에 연결 완료');
         connection.release(); // 빌려온 연결을 풀에 다시 반납
     } catch (error) {
-        console.error('HTTP서버에서 MySQL에 연결 실패:', error.message);
+        console.error('H4 - X : HTTP서버에서 MySQL에 연결 실패:', error.message);
     }
 }
 
-testDbConnection();
+DbConnection();
 
 module.exports = { pool };

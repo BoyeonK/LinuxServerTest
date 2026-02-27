@@ -25,8 +25,5 @@ app.use('/api/game/match', matchRoutes);
 
 // 서버 실행
 app.listen(port, () => {
-    console.log(`=================================`);
-    console.log(`Game API Server Running`);
-    console.log(`Port: http://localhost:${port}`);
-    console.log(`=================================`);
+    console.log(`H1 - OK : HTTP서버 클라이언트의 요청 대기중`);
 });

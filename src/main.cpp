@@ -35,9 +35,9 @@ int main() {
     try {
         IORing = new IoUringWrapper();
         pRedis = new sw::redis::Redis(redis_url);
-        std::cout << "글로벌 변수 초기화 완료" << std::endl;
+        std::cout << "C1 - OK : 글로벌 변수 초기화 완료" << std::endl;
     } catch (const std::exception& e) {
-        std::cerr << "글로벌 변수 초기화 실패: " << e.what() << std::endl;
+        std::cerr << "C1 - X : 글로벌 변수 초기화 실패: " << e.what() << std::endl;
         return 1;
     }
 
@@ -48,9 +48,9 @@ int main() {
 
         RedisController::InitializeItemCache(db_conn.get(), *pRedis);
 
-        std::cout << "MySQL에서 Redis에 items필드 가져오는 중" << std::endl;
+        std::cout << "C2-3 - OK : MySQL에서 Redis에 items필드 가져오는 중" << std::endl;
     } catch (const sql::SQLException& e) {
-        std::cerr << "MySQL에서 Redis에 items필드 가져오기 대실패: " << e.what() << std::endl;
+        std::cerr << "C2-3 - X : MySQL에서 Redis에 items필드 가져오기 대실패: " << e.what() << std::endl;
         return 1;
     }
 
@@ -67,7 +67,7 @@ int main() {
         dedicateIpc->Init();
 
         if (launchNode(nodePid))
-            std::cout << "Node.js server launched (PID: " << nodePid << ")" << std::endl;
+            std::cout << "C3-2 - OK : 자식 프로세스로 HTTP서버 구동 (PID: " << nodePid << ")" << std::endl;
 
         H2SAcceptTask* httpAcceptTask = ObjectPool<H2SAcceptTask>::Acquire(
             httpsIpc->GetFd(), 
@@ -76,7 +76,7 @@ int main() {
         IORing->RegisterAcceptTask(httpsIpc->GetFd(), httpAcceptTask);
         
     } catch (const std::exception& e) {
-        std::cerr << "소켓 생성 ~ 초기화 실패 : " << e.what() << std::endl;
+        std::cerr << "C3-2 - X : 소켓 생성 ~ 초기화 실패 : " << e.what() << std::endl;
         _exit(1);
     }
 

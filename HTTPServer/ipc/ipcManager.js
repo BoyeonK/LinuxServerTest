@@ -5,9 +5,9 @@ const path = require('path');
 const SOCKET_PATH = '/tmp/https.sock';
 const protoPath = path.join(__dirname, '../IPCProtocol.proto');
 
-const PKT_ID_MAIN_WELCOME = 1;
-const PKT_ID_HTTP_WELCOME = 2;
-const PKT_ID_HTTP_MATCHMAKE = 3;
+const PKT_ID_MAIN_WELCOME = 0;
+const PKT_ID_HTTP_WELCOME = 1;
+const PKT_ID_HTTP_MATCHMAKE = 2;
 
 let ipcClient = null;
 let rootProto = null; // Protobuf Root 객체 저장용
@@ -17,19 +17,21 @@ let receiveBuffer = Buffer.alloc(0);
 function initIPC() {
     protobuf.load(protoPath, (err, root) => {
         if (err) {
-            console.error("IPCProtocol.proto 경로 잘못됨.", err);
+            console.error("H3 - X : IPCProtocol.proto 경로 잘못됨.", err);
             return;
         }
         
         rootProto = root;
         ipcClient = net.createConnection(SOCKET_PATH, () => {
-            console.log('HTTP -> 메인프로세스 IPC 연결 성공');
-            
+            console.log('H3-1 - OK : HTTP -> 메인프로세스 IPC 연결 성공');
+            const randomInt = Math.floor(Math.random() * 10000);
+
             // 연결 테스트용 Welcome 패킷 전송
-            sendHttpWelcome(1234);
+            console.log(`H3-2 : ${randomInt}을 테스트 패킷에 전송. C++ 응답 확인 요망`);
+            sendHttpWelcome(randomInt);
         });
 
-        ipcClient.on('error', (err) => console.error('IPC 에러:', err.message));
+        ipcClient.on('error', (err) => console.error('H3 - X : IPC 에러:', err.message));
     
         // ==========================================================
         // 수신부: TCP 패킷 조립 및 파싱
@@ -105,7 +107,7 @@ function makePacket(pktId, payloadBuffer) {
 
 function sendHttpMatchMake(ticketId) {
     if (!rootProto) {
-        console.error("[Node.js IPC] Proto 로드 전입니다.");
+        console.error("Proto 로드 전입니다.");
         return;
     }
 
@@ -124,7 +126,7 @@ function sendHttpMatchMake(ticketId) {
 function sendHttpWelcome(echoNum) {
     if (!rootProto) return;
     const HttpWelcome = rootProto.lookupType("IPC_Protocol.HttpWelcome");
-    const payload = HttpWelcome.encode(HttpWelcome.create({ echo_message: echoNum })).finish();
+    const payload = HttpWelcome.encode(HttpWelcome.create({ echoMessage: echoNum })).finish();
     sendToCpp(makePacket(PKT_ID_HTTP_WELCOME, payload));
 }
 

@@ -13,7 +13,7 @@ bool Handle_Invalid(Session* pSession, unsigned char* buffer, int32_t len) {
 }
 
 bool Handle_Http_Welcome(Session* pSession, IPC_Protocol::HttpWelcome& pkt) {
-    cout << "받은 echo_message : " << pkt.echo_message() << endl;
+    cout << "H3-2 - OK 받은 echo_message : " << pkt.echo_message() << endl;
 
     return true;
 }

@@ -33,7 +33,7 @@ bool launchNode(pid_t& pid) {
     pid = fork();
 
     if (pid < 0) {
-        perror("Fork failed");
+        perror("C3-1 : X : Fork failed");
         return false;
     }
 
@@ -45,7 +45,7 @@ bool launchNode(pid_t& pid) {
         _exit(1);
     } 
     else {
-        std::cout << "Node.js Lobby Server launched with PID: " << pid << std::endl;
+        std::cout << "C3-1 - OK : PID: " << pid << std::endl;
         return true;
     }
 }
