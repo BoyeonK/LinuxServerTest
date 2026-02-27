@@ -2,6 +2,12 @@ syntax = "proto3";
 
 package IPC_Protocol;
 
+// 메인프로세스에서 보내는 경우, Main으로 시작
+// HTTP프로세스에서 보내는 경우, Http로 시작
+// Dedicated 프로세스에서 보내는 경우, Dedi로 시작
+
+// 추후 관계가 복잡해질 경우, M2H H2D D2M 처럼 출발지와 목적지를 같이 표기하는 식으로 변경예정.
+
 message MainWelcome {
     int32 echo_message = 1;
 }
@@ -11,5 +17,9 @@ message HttpWelcome {
 }
 
 message HttpMatchMake {
+    string ticket_redis_key = 1;
+}
+
+message HttpMatchMakeCancel {
     string ticket_redis_key = 1;
 }

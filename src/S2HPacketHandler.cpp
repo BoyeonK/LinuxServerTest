@@ -17,3 +17,15 @@ bool Handle_Http_Welcome(Session* pSession, IPC_Protocol::HttpWelcome& pkt) {
 
     return true;
 }
+
+bool Handle_Http_MatchMake(Session* pSession, IPC_Protocol::HttpMatchMake& pkt) {
+    cout << "매치 요청 테스트용 콘솔 출력" << endl;
+
+    return true;
+}
+
+bool Handle_Http_MatchMakeCancel(Session* pSession, IPC_Protocol::HttpMatchMakeCancel& pkt) {
+    cout << "매치취소 요청 테스트용 콘솔 출력" << endl;
+
+    return true;
+}

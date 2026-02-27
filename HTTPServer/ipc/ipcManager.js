@@ -8,6 +8,7 @@ const protoPath = path.join(__dirname, '../IPCProtocol.proto');
 const PKT_ID_MAIN_WELCOME = 0;
 const PKT_ID_HTTP_WELCOME = 1;
 const PKT_ID_HTTP_MATCHMAKE = 2;
+const PKT_ID_HTTP_MATCHMAKECANCEL = 3;
 
 let ipcClient = null;
 let rootProto = null; // Protobuf Root 객체 저장용
@@ -105,33 +106,51 @@ function makePacket(pktId, payloadBuffer) {
     return Buffer.concat([header, payloadBuffer]);
 }
 
+// ==========================================================
+// 실제 IPC의 송신에 최종적으로 사용할 함수
+// ==========================================================
+
+// 최초 통신 확인용
+function sendHttpWelcome(echoNum) {
+    if (!rootProto) return;
+    const HttpWelcome = rootProto.lookupType("IPC_Protocol.HttpWelcome");
+    const payload = HttpWelcome.encode(HttpWelcome.create({ echoMessage: echoNum })).finish();
+
+    sendToCpp(makePacket(PKT_ID_HTTP_WELCOME, payload));
+}
+
+// 매치메이킹 요청 처리용
 function sendHttpMatchMake(ticketId) {
-    if (!rootProto) {
-        console.error("Proto 로드 전입니다.");
-        return;
-    }
+    if (!rootProto) return;
 
     // 직렬화하고 헤더 부착
     const HttpMatchMake = rootProto.lookupType("IPC_Protocol.HttpMatchMake");
-    const message = HttpMatchMake.create({ ticket_redis_key: ticketId });
+    const message = HttpMatchMake.create({ ticketRedisKey: ticketId });
     const payload = HttpMatchMake.encode(message).finish();
-    const packet = makePacket(PKT_ID_HTTP_MATCHMAKE, payload);
 
-    sendToCpp(packet);
+    sendToCpp(makePacket(PKT_ID_HTTP_MATCHMAKE, payload));
 
     // TODO : 이거 빌드할때는 주석처리하든가 지워야됨
     console.log(`IPC: HttpMatchMake (ticket: ${ticketId})`);
 }
 
-function sendHttpWelcome(echoNum) {
+// 매치메이킹 취소 요청 처리용
+function sendHttpMatchMakeCancel(ticketId) {
     if (!rootProto) return;
-    const HttpWelcome = rootProto.lookupType("IPC_Protocol.HttpWelcome");
-    const payload = HttpWelcome.encode(HttpWelcome.create({ echoMessage: echoNum })).finish();
-    sendToCpp(makePacket(PKT_ID_HTTP_WELCOME, payload));
+
+    const HttpMatchMakeCancel = rootProto.lookupType("IPC_Protocol.HttpMatchMakeCancel");
+    const message = HttpMatchMakeCancel.create({ ticketRedisKey: ticketId });
+    const payload = HttpMatchMakeCancel.encode(message).finish();
+
+    sendToCpp(makePacket(PKT_ID_HTTP_MATCHMAKECANCEL, payload));
+
+    // TODO : 이거 빌드할때는 주석처리하든가 지워야됨
+    console.log(`IPC: HttpMatchMakeCancel (ticket: ${ticketId})`);
 }
 
 // 다른 파일에서 이 함수들을 쓸 수 있도록 내보내기
 module.exports = {
     initIPC,
-    sendHttpMatchMake
+    sendHttpMatchMake,
+    sendHttpMatchMakeCancel,
 };

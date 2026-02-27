@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { redisClient } = require('../config/redisClient');
 const { pool } = require('../config/mysqlClient');
 const { makeResponse } = require('../utils/response');
+const { sendHttpMatchMake, sendHttpMatchMakeCancel } = require('../ipc/ipcManager');
 
 const router = express.Router();
 
@@ -116,10 +117,10 @@ router.post('/start', requireAuth, async (req, res) => {
             }
         }
 
-        // 2. 유효성 검사 통과 시 Redis에 매칭 티켓 발급
+        // 유효성 검사 통과 시 Redis에 매칭 티켓 발급
         const ticketId = "ticket_" + crypto.randomUUID();
         
-        // [{itemId: 101, quantity: 5}, ...] 이 배열을 통째로 JSON 텍스트로 만들어 저장합니다.
+        // [{itemId: 101, quantity: 5}, ...] 이 배열을 통째로 JSON 텍스트로 만들어 저장
         const itemsJson = equippedItems ? JSON.stringify(equippedItems) : "[]";
 
         await redisClient.hSet(ticketId, {
@@ -129,16 +130,14 @@ router.post('/start', requireAuth, async (req, res) => {
             aggression: aggression.toString(),
             status: "WAITING",
             mapId: mapId ? mapId.toString() : "0",
-            items: itemsJson  // C++ 서버는 이 JSON을 파싱해서 수량만큼 스폰시켜주면 됩니다!
+            items: itemsJson  // C++ 서버에서 추후 이 JSON을 파싱해서 수량만큼 스폰과 동시에 DB에서 그 만큼을 제거.
         });
         await redisClient.expire(ticketId, 300);
 
+        // TODO : 빌드할 때 로그 ㄷ지워야댐
         console.log(`[Match] 큐 진입 - User: ${user_id}, Ticket: ${ticketId}, Items: ${itemsJson}`);
 
-        // ==========================================================
-        // TODO: IPC를 통해 C++ 서버로 매칭 큐 진입 알림
-        // ticketId를 protobuf로 직렬화해서 보내고, 매칭서버에서 ticketId를 통해 Redis에 접근해서 매칭 시작.
-        // ==========================================================
+        sendHttpMatchMake(ticketId);
 
         res.status(200).json(makeResponse(true, 200, { ticketId }));
     } catch (error) {
@@ -212,6 +211,7 @@ router.post('/cancel', requireAuth, async (req, res) => {
 
         if (result === 1) {
             // 성공
+            sendHttpMatchMakeCancel(ticketId);
             console.log(`[Match] 취소 완료 - User UID: ${db_id}, Ticket: ${ticketId}`);
             return res.status(200).json(makeResponse(true, 200, { message: "매칭이 취소되었습니다." }));
             

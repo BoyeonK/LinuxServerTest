@@ -11,8 +11,10 @@
 extern std::function<bool(Session*, unsigned char*, int32_t)> GProtoPacketHandler[UINT16_MAX];
 
 enum : uint16_t {
-	PID_MAIN_WELCOME = 0,
-	PID_HTTP_WELCOME = 1,
+	PKT_ID_MAIN_WELCOME = 0,
+    PKT_ID_HTTP_WELCOME = 1,
+	PKT_ID_HTTP_MATCHMAKE = 2,
+	PKT_ID_HTTP_MATCHMAKECANCEL = 3,
 };
 
 #pragma pack(push, 1)
@@ -24,6 +26,8 @@ struct PacketHeader {
 
 bool Handle_Invalid(Session* pSession, unsigned char* buffer, int32_t len);
 bool Handle_Http_Welcome(Session* pSession, IPC_Protocol::HttpWelcome& pkt);
+bool Handle_Http_MatchMake(Session* pSession, IPC_Protocol::HttpMatchMake& pkt);
+bool Handle_Http_MatchMakeCancel(Session* pSession, IPC_Protocol::HttpMatchMakeCancel& pkt);
 
 class S2HPacketHandler {
 public:
@@ -31,7 +35,7 @@ public:
 		for (int i=0; i < UINT16_MAX; i++)
 			GProtoPacketHandler[i] = Handle_Invalid;
 
-		GProtoPacketHandler[PID_HTTP_WELCOME] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::HttpWelcome>(Handle_Http_Welcome, pSession, buffer, len); };
+		GProtoPacketHandler[PKT_ID_HTTP_WELCOME] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::HttpWelcome>(Handle_Http_Welcome, pSession, buffer, len); };
 	}
 
 	static bool HandlePacket(Session* pSession, unsigned char* buffer, int32_t len) {
@@ -40,7 +44,7 @@ public:
 		return GProtoPacketHandler[header->_id](pSession, buffer, len);
 	}
 
-	static SendBuffer* MakeSendBuffer(const IPC_Protocol::HttpWelcome& pkt) { return MakeSendBuffer(pkt, PID_HTTP_WELCOME); }
+	static SendBuffer* MakeSendBuffer(const IPC_Protocol::HttpWelcome& pkt) { return MakeSendBuffer(pkt, PKT_ID_HTTP_WELCOME); }
 
 public:
 	static IPC_Protocol::MainWelcome MakeMainWelcomePkt(int32_t value) {
