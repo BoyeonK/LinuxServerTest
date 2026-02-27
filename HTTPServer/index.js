@@ -2,6 +2,12 @@ const path = require('path');
 const express = require('express');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
+// TODO: EC2에 올릴 때는 지워야함 ===================
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const YAML = require('yaml');
+// ==============================================
+
 const { connectRedis } = require('./config/redisClient');
 const { initIPC } = require('./ipc/ipcManager');
 const { makeResponse } = require('./utils/response');
@@ -10,16 +16,21 @@ const authRoutes = require('./routes/auth');
 const matchRoutes = require('./routes/match');
 
 const app = express();
-const port = 3000;
+const port = process.env.EXPRESS_PORT || 3000;
 app.use(express.json());
 
 connectRedis();
 initIPC();
 
+// TODO: EC2에 올릴 때는 지워야함 ======================
+const yamlFile = fs.readFileSync(path.join(__dirname, 'http-api-spec.yaml'), 'utf8');
+const swaggerDocument = YAML.parse(yamlFile);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// =========================================================
+
 app.get('/api/version', (req, res) => {
     res.status(200).json(makeResponse(true, 200, { latestVersion: "alphaTest", isMaintenance: false }));
 });
-
 app.use('/api', authRoutes); 
 app.use('/api/game/match', matchRoutes);
 

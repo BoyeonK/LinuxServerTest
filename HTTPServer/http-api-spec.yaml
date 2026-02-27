@@ -151,7 +151,7 @@ paths:
       security:
         - SessionAuth: []
       description: "대기 중인 매치메이킹을 취소합니다."
-      requestBody:
+      requestBody: # [수정] Query Parameter에서 Body로 변경
         required: true
         content:
           application/json:
@@ -266,7 +266,7 @@ components:
           type: string
           description: "진입할 맵의 식별자"
           example: "0"
-        equippedItems:
+        equippedItems: # [수정] items -> equippedItems 로 변경
           type: array
           description: "인게임에서 사용할 인벤토리 아이템 목록 (ID와 수량)"
           items:
@@ -276,7 +276,7 @@ components:
               - quantity
             properties:
               itemId:
-                type: integer
+                type: integer # [수정] string -> integer
                 description: "아이템 식별자 ID"
                 example: 101
               quantity:
@@ -307,11 +307,11 @@ components:
           description: "현재 매칭 상태 (WAITING: 대기중, SUCCESS: 매칭 성공, FAILED: 실패)"
           enum: [WAITING, SUCCESS, FAILED]
           example: "SUCCESS"
-        udpServerIp:
+        ip: # [수정] udpServerIp -> ip
           type: string
           description: "접속해야 할 인게임 UDP 서버 IP (상태가 SUCCESS일 때만 존재)"
           example: "127.0.0.1"
-        udpServerPort:
+        port: # [수정] udpServerPort -> port
           type: integer
           description: "접속해야 할 인게임 UDP 서버 포트"
           example: 7777

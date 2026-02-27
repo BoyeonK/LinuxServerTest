@@ -5,6 +5,8 @@
     "express": "^5.2.1",
     "mysql2": "^3.17.3",
     "protobufjs": "^8.0.0",
-    "redis": "^5.11.0"
+    "redis": "^5.11.0",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.8.2"
   }
 }

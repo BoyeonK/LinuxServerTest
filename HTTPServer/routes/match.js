@@ -177,8 +177,8 @@ router.get('/status', requireAuth, async (req, res) => {
         } else if (ticketData.status === "SUCCESS") {
             return res.status(200).json(makeResponse(true, 200, { 
                 status: "SUCCESS",
-                ip: ticketData.udpServerIp,
-                port: ticketData.udpServerPort,
+                udpServerIp: ticketData.udpServerIp,
+                udpServerPort: ticketData.udpServerPort,
                 roomToken: ticketData.roomToken
             }));
         } else {
