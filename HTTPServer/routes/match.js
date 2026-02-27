@@ -74,68 +74,84 @@ async function requireAuth(req, res, next) {
 router.post('/start', requireAuth, async (req, res) => {
     // 클라이언트 데이터 예시:
     // equippedItems: [{ itemId: 101, quantity: 5 }, { itemId: 105, quantity: 1 }]
-    const { mapId, equippedItems } = req.body; 
+    const { mapId, loadoutType, equippedItems } = req.body;
     const { user_id, db_id, rating, aggression } = req.sessionData;
 
     try {
-        if (equippedItems && Array.isArray(equippedItems) && equippedItems.length > 0) {
-            const requestedItemIds = equippedItems.map(item => item.itemId);
-            const uniqueItemIds = new Set(requestedItemIds);
-            if (uniqueItemIds.size !== requestedItemIds.length) {
-                return res.status(400).json(makeResponse(false, 400, null, { message: "중복된 아이템 ID가 포함되어 있습니다." }));
+        if (loadoutType !== 'FREE' && loadoutType !== 'CUSTOM') {
+            return res.status(400).json(makeResponse(false, 400, null, { message: "잘못된 loadoutType 입니다." }));
+        }
+
+        let finalItems = "[]";
+
+        if (loadoutType === 'FREE') {
+            finalItems = "[]"; 
+            
+        } else if (loadoutType === 'CUSTOM') {
+            // 야끼런이어도 빈 배열은 들고 오셔야 됩니다. null인 경우 분기처리
+            if (!equippedItems || !Array.isArray(equippedItems)) {
+                return res.status(400).json(makeResponse(false, 400, null, { message: "CUSTOM 모드에서는 equippedItems 배열이 필수입니다." }));
             }
-            
-            const placeholders = requestedItemIds.map(() => '?').join(',');
-            
-            // IN 쿼리로 요청한 아이템들의 '현재 수량'을 DB에서 싹 긁어옵니다.
-            const [rows] = await pool.query(
-                `SELECT item_id, quantity FROM user_inventory WHERE uid = ? AND item_id IN (${placeholders})`,
-                [db_id, ...requestedItemIds]
-            );
 
-            // DB 결과를 object로 변환
-            // 예: ownedItems = { "101": 10, "105": 1 }
-            const ownedItems = {};
-            rows.forEach(row => {
-                ownedItems[row.item_id] = row.quantity;
-            });
-
-            // 클라이언트가 요청한 아이템 수량이 검사
-            for (const reqItem of equippedItems) {
-                const ownedQty = ownedItems[reqItem.itemId] || 0; // DB에 아예 없으면 0개로 취급
-                
-                //TODO : 반복될 경우, cheat의심
-                if (ownedQty < reqItem.quantity) {
-                    return res.status(400).json(makeResponse(false, 400, null, { 
-                        message: `아이템(ID: ${reqItem.itemId})의 보유 수량이 부족하거나 없습니다. (요청: ${reqItem.quantity}, 보유: ${ownedQty})` 
-                    }));
+            if (equippedItems && Array.isArray(equippedItems) && equippedItems.length > 0) {
+                const requestedItemIds = equippedItems.map(item => item.itemId);
+                const uniqueItemIds = new Set(requestedItemIds);
+                if (uniqueItemIds.size !== requestedItemIds.length) {
+                    return res.status(400).json(makeResponse(false, 400, null, { message: "중복된 아이템 ID가 포함되어 있습니다." }));
                 }
                 
-                if (reqItem.quantity <= 0) {
-                    return res.status(400).json(makeResponse(false, 400, null, { message: "아이템 수량은 1개 이상이어야 합니다." }));
+                const placeholders = requestedItemIds.map(() => '?').join(',');
+                
+                // IN 쿼리로 요청한 아이템들의 '현재 수량'을 DB에서 싹 긁어옵니다.
+                const [rows] = await pool.query(
+                    `SELECT item_id, quantity FROM user_inventory WHERE uid = ? AND item_id IN (${placeholders})`,
+                    [db_id, ...requestedItemIds]
+                );
+
+                // DB 결과를 object로 변환
+                // 예: ownedItems = { "101": 10, "105": 1 }
+                const ownedItems = {};
+                rows.forEach(row => {
+                    ownedItems[row.item_id] = row.quantity;
+                });
+
+                // 클라이언트가 요청한 아이템 수량이 검사
+                //TODO : 해당 구간에서 오류가 반복될 경우, cheat의심
+                for (const reqItem of equippedItems) {
+                    const ownedQty = ownedItems[reqItem.itemId] || 0; // DB에 아예 없으면 0개로 취급
+  
+                    if (ownedQty < reqItem.quantity) {
+                        return res.status(400).json(makeResponse(false, 400, null, { 
+                            message: `아이템(ID: ${reqItem.itemId})의 보유 수량이 부족하거나 없습니다. (요청: ${reqItem.quantity}, 보유: ${ownedQty})` 
+                        }));
+                    }
+                    
+                    if (reqItem.quantity <= 0) {
+                        return res.status(400).json(makeResponse(false, 400, null, { message: "아이템 수량은 1개 이상이어야 합니다." }));
+                    }
                 }
             }
+            
+            finalItems = JSON.stringify(equippedItems);
         }
 
         // 유효성 검사 통과 시 Redis에 매칭 티켓 발급
-        const ticketId = "ticket_" + crypto.randomUUID();
-        
-        // [{itemId: 101, quantity: 5}, ...] 이 배열을 통째로 JSON 텍스트로 만들어 저장
-        const itemsJson = equippedItems ? JSON.stringify(equippedItems) : "[]";
+        const ticketId = "ticket_" + crypto.randomUUID(); 
 
         await redisClient.hSet(ticketId, {
             uid: db_id,
             user_id: user_id,
             rating: rating.toString(),
             aggression: aggression.toString(),
+            loadout_type: loadoutType,
             status: "WAITING",
             mapId: mapId ? mapId.toString() : "0",
-            items: itemsJson  // C++ 서버에서 추후 이 JSON을 파싱해서 수량만큼 스폰과 동시에 DB에서 그 만큼을 제거.
+            items: finalItems  // C++ 서버에서 추후 이 JSON을 파싱해서 수량만큼 스폰과 동시에 DB에서 그 만큼을 제거.
         });
         await redisClient.expire(ticketId, 300);
 
         // TODO : 빌드할 때 로그 ㄷ지워야댐
-        console.log(`[Match] 큐 진입 - User: ${user_id}, Ticket: ${ticketId}, Items: ${itemsJson}`);
+        console.log(`[Match] 큐 진입 - User: ${user_id}, Ticket: ${ticketId}, Items: ${finalItems}`);
 
         sendHttpMatchMake(ticketId);
 

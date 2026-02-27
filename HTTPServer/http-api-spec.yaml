@@ -260,13 +260,18 @@ components:
       type: object
       required:
         - mapId
-        - equippedItems
+        - loadoutType
       properties:
         mapId:
           type: string
           description: "진입할 맵의 식별자"
           example: "0"
-        equippedItems: # [수정] items -> equippedItems 로 변경
+        loadoutType:   # FREE / CUSTOM 모드 명시
+          type: string
+          description: "장비 반입 모드 (FREE: 기본 장비 지급, CUSTOM: 내 장비 반입)"
+          enum: [FREE, CUSTOM]
+          example: "CUSTOM"
+        equippedItems:
           type: array
           description: "인게임에서 사용할 인벤토리 아이템 목록 (ID와 수량)"
           items:
@@ -307,11 +312,11 @@ components:
           description: "현재 매칭 상태 (WAITING: 대기중, SUCCESS: 매칭 성공, FAILED: 실패)"
           enum: [WAITING, SUCCESS, FAILED]
           example: "SUCCESS"
-        ip: # [수정] udpServerIp -> ip
+        udpServerIp::
           type: string
           description: "접속해야 할 인게임 UDP 서버 IP (상태가 SUCCESS일 때만 존재)"
           example: "127.0.0.1"
-        port: # [수정] udpServerPort -> port
+        udpServerPort:
           type: integer
           description: "접속해야 할 인게임 UDP 서버 포트"
           example: 7777
