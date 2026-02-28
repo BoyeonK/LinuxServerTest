@@ -1,10 +1,10 @@
-#include "RedisController.h"
+#include "RedisHandler.h"
 #include <cppconn/prepared_statement.h>
 #include <cppconn/resultset.h>
 #include <iostream>
 #include <unordered_map>
 
-namespace RedisController {
+namespace RedisHandler {
 
     void InitializeItemCache(sql::Connection* db_conn, sw::redis::Redis& redis) {
         if (!db_conn) {

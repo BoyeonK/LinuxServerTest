@@ -14,7 +14,7 @@
 #include "HTTPserver.h"
 #include "SocketWrapper.h"
 #include "ObjectPool.h"
-#include "RedisController.h"
+#include "RedisHandler.h"
 #include "EnvSetter.h"
 
 int main() {
@@ -46,7 +46,7 @@ int main() {
         std::unique_ptr<sql::Connection> db_conn(driver->connect(mysql_url, env_db_user, env_db_pass));
         db_conn->setSchema(env_db_name);
 
-        RedisController::InitializeItemCache(db_conn.get(), *pRedis);
+        RedisHandler::InitializeItemCache(db_conn.get(), *pRedis);
 
         std::cout << "C2-3 - OK : MySQL에서 Redis에 items필드 가져오는 중" << std::endl;
     } catch (const sql::SQLException& e) {

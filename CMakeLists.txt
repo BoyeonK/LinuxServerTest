@@ -25,7 +25,7 @@ FetchContent_MakeAvailable(MyUtils)
 
 set(PROJECT_SOURCES
     src/main.cpp
-    src/TestCode/NetAddress.cpp
+    src/NetAddress.cpp
     src/SocketWrapper.cpp
     src/IOTask.cpp
     src/HTTPserver.cpp
@@ -36,11 +36,11 @@ set(PROJECT_SOURCES
     src/RecvBuffer.cpp
     src/GlobalVariable.cpp
     src/EnvSetter.cpp
-    src/RedisController.cpp
+    src/RedisHandler.cpp
 
     src/IPCProtocol/IPCProtocol.pb.cc
 
-    src/TestCode/NetAddress.h
+    src/NetAddress.h
     src/SocketWrapper.h
     src/IOTask.h
     src/HTTPserver.h
@@ -51,7 +51,7 @@ set(PROJECT_SOURCES
     src/RecvBuffer.h
     src/GlobalVariable.h
     src/EnvSetter.h
-    src/RedisController.h
+    src/RedisHandler.h
 
     src/IPCProtocol/IPCProtocol.pb.h
 )

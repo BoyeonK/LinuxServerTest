@@ -4,7 +4,7 @@
 #include <mysql_connection.h>
 #include <memory>
 
-namespace RedisController {
+namespace RedisHandler {
     /**
      * @brief MySQL의 아이템 정보를 Redis 마스터 데이터 캐시로 구축
      */
