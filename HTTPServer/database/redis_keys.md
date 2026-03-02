@@ -20,7 +20,11 @@
     - items: '[{"itemId": 101, "quantity": 5}]' (장착 아이템 JSON 문자열)
     - status: "WAITING"
 
-    [매칭 완료: C++ 서버가 matchSuccess Lua 실행 시 추가됨]
+    [매칭 완료 ~ 서버 준비중 : C++ 서버가 matchSuccess Lua 실행 시 업데이트 됨.]
+
+    - status: "INPROGRESS" (업데이트됨, 지금부터 플레이어의 매치 취소(/cancel)로 파기 불가능)
+
+    [서버 준비 완 : Dedicate process가 Success Lua 실행 시 추가됨]
 
     - status: "SUCCESS" (업데이트됨)
     - udpServerIp: "127.0.0.1" (데디케이티드 서버 IP)

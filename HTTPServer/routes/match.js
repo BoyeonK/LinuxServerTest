@@ -187,7 +187,7 @@ router.get('/status', requireAuth, async (req, res) => {
         }
 
         // 상태에 따른 응답 분기
-        if (ticketData.status === "WAITING") {
+        if (ticketData.status === "WAITING" || ticketData.status === "INPROGRESS") {
             return res.status(200).json(makeResponse(true, 200, { status: "WAITING" }));
             
         } else if (ticketData.status === "SUCCESS") {
