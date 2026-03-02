@@ -38,6 +38,8 @@ set(PROJECT_SOURCES
     src/EnvSetter.cpp
     src/RedisHandler.cpp
 
+    src/Matchmaker/MatchMaker.cpp
+
     src/IPCProtocol/IPCProtocol.pb.cc
 
     src/NetAddress.h
@@ -52,6 +54,8 @@ set(PROJECT_SOURCES
     src/GlobalVariable.h
     src/EnvSetter.h
     src/RedisHandler.h
+
+    src/Matchmaker/MatchMaker.h
 
     src/IPCProtocol/IPCProtocol.pb.h
 )
