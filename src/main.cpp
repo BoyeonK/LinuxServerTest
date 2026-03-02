@@ -16,9 +16,15 @@
 #include "ObjectPool.h"
 #include "RedisHandler.h"
 #include "EnvSetter.h"
+#include "DedicateProcess/DedicateMain.h"
 
-int main() {
+// 메인 함수에서 인자를 받을 수 있다. 내 세상이 무너졌다.
+int main(int argc, char* argv[]) {
     SetEnv();
+
+    if (argc >= 2 && std::string(argv[1]) == "--dedicated") {
+        return DedicateMain(argc, argv);
+    }
 
     const char* env_redis_host  = std::getenv("REDIS_HOST");
     const char* env_redis_port  = std::getenv("REDIS_PORT");

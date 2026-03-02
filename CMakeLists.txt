@@ -38,7 +38,7 @@ set(PROJECT_SOURCES
     src/EnvSetter.cpp
     src/RedisHandler.cpp
 
-    src/Matchmaker/MatchMaker.cpp
+    src/DedicateProcess/MatchMaker.cpp
 
     src/IPCProtocol/IPCProtocol.pb.cc
 
@@ -55,7 +55,7 @@ set(PROJECT_SOURCES
     src/EnvSetter.h
     src/RedisHandler.h
 
-    src/Matchmaker/MatchMaker.h
+    src/DedicateProcess/MatchMaker.h
 
     src/IPCProtocol/IPCProtocol.pb.h
 )

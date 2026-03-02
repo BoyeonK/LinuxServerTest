@@ -23,3 +23,9 @@ message HttpMatchMake {
 message HttpMatchMakeCancel {
     string ticket_redis_key = 1;
 }
+
+// 둘다 넘겨버려 그냥
+message DediInitComplete {
+    int32 pid = 1;
+    int32 fd = 2;
+}
