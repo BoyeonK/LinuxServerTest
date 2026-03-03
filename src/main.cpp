@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
         IORing = new IoUringWrapper();
         pRedis = new sw::redis::Redis(redis_url);
         pDediManager = new DediManager();
-        std::cout << "C1 - OK : 글로벌 변수 초기화 완료" << std::endl;
+        std::cout << "C1 - OK : 환경변수 로드, IoUring객체 및 Redis핸들 생성" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "C1 - X : 글로벌 변수 초기화 실패: " << e.what() << std::endl;
         return 1;
@@ -83,12 +83,20 @@ int main(int argc, char* argv[]) {
         );
         IORing->RegisterAcceptTask(httpsIpc->GetFd(), httpAcceptTask);
 
+        //TODO : Dedi의 AcceptTask를 안넣어놓음
+        DediAcceptTask* dediAcceptTask = ObjectPool<DediAcceptTask>::Acquire(
+            dedicateIpc->GetFd(),
+            IORing
+        );
+        IORing->RegisterAcceptTask(dedicateIpc->GetFd(), dediAcceptTask);
+
     } catch (const std::exception& e) {
         std::cerr << "C3-2 - X : 소켓 생성 ~ 초기화 실패 : " << e.what() << std::endl;
         _exit(1);
     }
 
-    
+    std::cout << "C4-1 : 인게임 로직 전용 Dedicated Process 미리 1개 생성" << std::endl;
+    pDediManager->SpawnSingleServer();
 
     while (true) {
         IORing->ExecuteCQTask();

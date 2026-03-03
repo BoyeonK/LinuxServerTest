@@ -102,7 +102,7 @@ public:
     ~DediTempSession() {}
 
     void ReleaseFd() { _fd = -1; }
-    void Recv() override {}
+    void Recv() override;
     void OnReadComplete(int readBytes) override;
 
 private:

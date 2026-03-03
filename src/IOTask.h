@@ -61,6 +61,15 @@ private:
     IoUringWrapper* _uring;
 };
 
+class DediRecvTask : public IOTask {
+public:
+    DediRecvTask(int fd, void* buf, size_t len, Session* pSession);
+    void callback(int readBytes) override;
+
+private:
+    Session* _pSession;
+};
+
 class IPCSendTask : public IOTask {
 public:
     IPCSendTask(SendBuffer* buffer, Session* session);

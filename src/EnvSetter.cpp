@@ -39,7 +39,7 @@ void SetEnv() {
 
             //Linux 환경 변수 설정
             if (setenv(key.c_str(), value.c_str(), 1) == 0) {
-                std::cout << "환경 변수 설정 성공: " << key << std::endl;
+                //std::cout << "환경 변수 설정 성공: " << key << std::endl;
             } else {
                 std::cerr << "환경 변수 설정 실패: " << key << std::endl;
             }

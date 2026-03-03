@@ -51,12 +51,21 @@ void DediAcceptTask::callback(int result) {
     }
 
     int DediIPCsockFd = result;
-    std::cout << "Dedi IPC 연결 성공 FD: " << DediIPCsockFd << std::endl;
 
     DediTempSession* pTempSession = new DediTempSession(DediIPCsockFd, _uring);
     pDediManager->OnAcceptDedi(DediIPCsockFd, pTempSession);
 
     _uring->RegisterAcceptTask(fd, this);
+}
+
+DediRecvTask::DediRecvTask(int fd, void* buf, size_t len, Session* pSession) : _pSession(pSession) {
+    this->fd = fd;
+    this->type = IOTaskType::READ_IPC_DEDICATE;
+}
+
+void DediRecvTask::callback(int readBytes) {
+    _pSession->OnReadComplete(readBytes);
+    ObjectPool<DediRecvTask>::Release(this);
 }
 
 IPCSendTask::IPCSendTask(SendBuffer* buffer, Session* session) {

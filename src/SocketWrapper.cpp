@@ -125,6 +125,11 @@ void DediIPCSession::OnWriteComplete(int result) {
 
 }
 
+void DediTempSession::Recv() {
+    DediRecvTask* readTask = ObjectPool<DediRecvTask>::Acquire(_fd, _recvBuffer.ReadPos(), _recvBuffer.FreeSize(), this);
+    _uring->RegisterRecv(_fd, _recvBuffer.ReadPos(), _recvBuffer.FreeSize(), readTask);
+}
+
 void DediTempSession::OnReadComplete(int readBytes) {
     _recvBuffer.OnRead(readBytes);
     if (readBytes > 0) {

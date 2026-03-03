@@ -30,7 +30,7 @@ public:
     bool InitMainIPC() {
         _dediFd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
         if (_dediFd == -1) {
-            std::cerr << "[Dedicated] 소켓 생성 실패" << std::endl;
+            std::cerr << "D3-1 - X : 소켓 생성 실패" << std::endl;
             return false;
         }
 
@@ -39,24 +39,24 @@ public:
         std::strncpy(addr.sun_path, "/tmp/dedicate.sock", sizeof(addr.sun_path) - 1);
 
         if (connect(_dediFd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
-            std::cerr << "[Dedicated] 로비 서버 연결 실패 (Connect error)" << std::endl;
+            std::cerr << "D3-1 - X : 로비 서버 Connect 실패" << std::endl;
             close(_dediFd);
             return false;
         }
 
         _mainSession = new MainIPCSession(_dediFd, IORing);
-        _mainSession->Recv();
+        std::cout << "D3-1 - OK : DediServerService 객체 초기화 완" << std::endl;
 
-        // TODO : 
-        // mainSession에 실행된 pid전송하기
+        SendIdentityPacket();
+        _mainSession->Recv();
 
         return true;
     };
 
     void SendIdentityPacket() {
         IPC_Protocol::D2MInitComplete pkt;
-        pkt.set_pid(getpid()); // 자신의 PID 획득
-
+        pkt.set_pid(getpid());
+        std::cout << "D3-2 : IPC_Protocol::D2MInitComplete으로 직렬화한 pid 전송 시도 : " << getpid() << std::endl;
         SendBuffer* pSendBuffer = PacketHandler::MakeSendBuffer(pkt);
         _mainSession->Send(pSendBuffer);
     }
