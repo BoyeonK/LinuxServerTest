@@ -16,6 +16,15 @@ public:
     };
 
     bool Init() {
+        if (InitMainIPC() == false)
+            return false;
+        /*
+        if (InitUDP() == false)
+            return false;
+        */  
+    }
+
+    bool InitMainIPC() {
         _dediFd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
         if (_dediFd == -1) {
             std::cerr << "[Dedicated] 소켓 생성 실패" << std::endl;
@@ -35,10 +44,17 @@ public:
         _mainSession = new MainIPCSession(_dediFd, IORing);
         _mainSession->Recv();
 
-        // TODO : mainSession에 실행된 pid전송하기
+        // TODO : 
+        // mainSession에 실행된 pid전송하기
 
         return true;
-    }
+    };
+
+    /*
+    bool InitUDP() {
+
+    };
+    */
 
 private:
     int _dediFd = -1;

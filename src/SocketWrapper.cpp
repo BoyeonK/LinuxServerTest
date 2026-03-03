@@ -95,8 +95,8 @@ void HttpIPCSession::OnWriteComplete(int result) {
 
 }
 
-DediIPCSession::DediIPCSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {
-
+DediIPCSession::DediIPCSession(int pid, IoUringWrapper* uring) : Session(-1, uring), _pid(pid), _state(SessionState::Initializing) {
+    
 }
 
 DediIPCSession::~DediIPCSession() {}

@@ -68,7 +68,13 @@ public:
 // M2D
 class DediIPCSession : public Session {
 public:
-    DediIPCSession(int fd, IoUringWrapper* uring);
+    enum class SessionState {
+        Initializing,
+        Ready,
+        Terminated,
+    }
+
+    DediIPCSession(int pid, IoUringWrapper* uring);
     ~DediIPCSession();
 
     void Recv() override;
@@ -76,6 +82,15 @@ public:
 
     void OnReadComplete(int readBytes) override;
     void OnWriteComplete(int result) override;
+
+    int GetAffordablePlayers() const { 
+        return 50 - ingamePlayers; 
+    }
+
+private:
+    int _pid;
+    int _ingamePlayers = 0;
+    SessionState _state;
 }
 
 // D2M

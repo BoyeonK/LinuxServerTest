@@ -8,7 +8,9 @@
 
 #include "DedicateMain.h" 
 
-// 한 프로세스에서 50명까지 감당할 예정.
+#include "../SocketWrapper.h"
+
+// 한 프로세스에서 최대 50명까지 감당할 예정.
 struct DediServer {
     int pid;
     int fd;
@@ -49,4 +51,7 @@ private:
 
 private:
     std::unordered_map<int, DediServer> _servers;
+
+    //교체해버릴까
+    std::unordered_map<int, DediIPCSession*> _dediSessions;
 };
