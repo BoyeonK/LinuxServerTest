@@ -38,7 +38,7 @@ set(PROJECT_SOURCES
     src/EnvSetter.cpp
     src/RedisHandler.cpp
 
-    src/DedicateProcess/MatchMaker.cpp
+    src/DedicateProcess/Matchmaker.cpp
     src/DedicateProcess/DediServerService.cpp
     src/DedicateProcess/DediManager.cpp
     src/DedicateProcess/DedicateMain.cpp
@@ -58,7 +58,7 @@ set(PROJECT_SOURCES
     src/EnvSetter.h
     src/RedisHandler.h
 
-    src/DedicateProcess/MatchMaker.h
+    src/DedicateProcess/Matchmaker.h
     src/DedicateProcess/DediServerService.h
     src/DedicateProcess/DediManager.h
     src/DedicateProcess/DedicateMain.h
