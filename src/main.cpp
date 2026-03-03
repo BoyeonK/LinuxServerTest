@@ -8,7 +8,7 @@
 #include <mysql_driver.h>
 #include <mysql_connection.h>
 #include "GlobalVariable.h"
-#include "S2HPacketHandler.h"
+#include "PacketHandler.h"
 #include "IoUringWrapper.h"
 #include "IOTask.h"
 #include "HTTPserver.h"
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    S2HPacketHandler::Init();
+    PacketHandler::Init();
 
     std::unique_ptr<IPCListenSocketWrapper> httpsIpc;
     std::unique_ptr<IPCListenSocketWrapper> dedicateIpc;
@@ -83,12 +83,12 @@ int main(int argc, char* argv[]) {
         );
         IORing->RegisterAcceptTask(httpsIpc->GetFd(), httpAcceptTask);
 
-        
-        
     } catch (const std::exception& e) {
         std::cerr << "C3-2 - X : 소켓 생성 ~ 초기화 실패 : " << e.what() << std::endl;
         _exit(1);
     }
+
+    
 
     while (true) {
         IORing->ExecuteCQTask();

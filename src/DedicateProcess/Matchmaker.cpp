@@ -49,7 +49,6 @@ void MatchMaker::AddNewMatchTickets() {
     _ticketsToAdd.clear();
 }
 
-
 void MatchMaker::AddRematchTickets() {
     // 1. ticketsToRematch의 모든 TicketVector를 먼저 온 친구가 앞에 오도록 정렬함
     // 2. 모든 agression마다, 정렬된 _bucket[agression]과, 정렬된 _ticket[agression]를 병합

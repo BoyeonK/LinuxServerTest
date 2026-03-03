@@ -32,7 +32,7 @@ set(PROJECT_SOURCES
     src/IoUringWrapper.cpp
     src/ObjectPool.cpp
     src/SendBuffer.cpp
-    src/S2HPacketHandler.cpp
+    src/PacketHandler.cpp
     src/RecvBuffer.cpp
     src/GlobalVariable.cpp
     src/EnvSetter.cpp
@@ -52,7 +52,7 @@ set(PROJECT_SOURCES
     src/IoUringWrapper.h
     src/ObjectPool.h
     src/SendBuffer.h
-    src/S2HPacketHandler.h
+    src/PacketHandler.h
     src/RecvBuffer.h
     src/GlobalVariable.h
     src/EnvSetter.h

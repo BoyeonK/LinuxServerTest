@@ -5,6 +5,8 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <cstring>
+#include "../PacketHandler.h"
+#include "../IPCProtocol/IPCProtocol.pb.h"
 
 class MainIPCSession;
 
@@ -50,6 +52,14 @@ public:
 
         return true;
     };
+
+    void SendIdentityPacket() {
+        IPC_Protocol::D2MInitComplete pkt;
+        pkt.set_pid(getpid()); // 자신의 PID 획득
+
+        SendBuffer* pSendBuffer = PacketHandler::MakeSendBuffer(pkt);
+        _mainSession->Send(pSendBuffer);
+    }
 
     /*
     bool InitUDP() {

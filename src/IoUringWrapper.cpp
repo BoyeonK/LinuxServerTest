@@ -1,5 +1,6 @@
 #include "IoUringWrapper.h"
 #include "IOTask.h"
+#include "ObjectPool.h"
 
 IoUringWrapper::IoUringWrapper() {
     int ret = io_uring_queue_init(4096, &_ring, 0);
@@ -35,8 +36,18 @@ void IoUringWrapper::RegisterRecv(int fd, void* buf, int32_t len, IOTask* task) 
     io_uring_submit(&_ring);
 }
 
-void IoUringWrapper::RegisterSendTask(int socketFd, IOTask* task) {
-    
+void IoUringWrapper::RegisterIPCSendTask(IPCSendTask* pIPCSendTask) {
+    struct io_uring_sqe* sqe = io_uring_get_sqe(&_ring);
+    if (!sqe) {
+        ObjectPool<SendBuffer>::Release(pIPCSendTask->pBuffer);
+        ObjectPool<IPCSendTask>::Release(pIPCSendTask);
+        return;
+    }
+
+    io_uring_prep_send(sqe, pIPCSendTask->fd, pIPCSendTask->pBuffer->Buffer(), pIPCSendTask->pBuffer->WriteSize(), 0);
+    io_uring_sqe_set_data(sqe, pIPCSendTask);
+
+    io_uring_submit(&_ring);
 }
 
 void IoUringWrapper::RegisterAcceptTask(int listenFd, IOTask* task) {

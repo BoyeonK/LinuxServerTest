@@ -11,11 +11,18 @@
 extern std::function<bool(Session*, unsigned char*, int32_t)> GProtoPacketHandler[UINT16_MAX];
 
 enum : uint16_t {
-	PKT_ID_MAIN_WELCOME = 0,
-    PKT_ID_HTTP_WELCOME = 1,
-	PKT_ID_HTTP_MATCHMAKE = 2,
-	PKT_ID_HTTP_MATCHMAKECANCEL = 3,
+	PKT_ID_M2H_WELCOME = 0,
+    PKT_ID_H2M_WELCOME = 1,
+	PKT_ID_H2M_MATCH_MAKE = 2,
+	PKT_ID_H2M_MATCH_MAKE_CANCEL = 3,
+	PKT_ID_D2M_INIT_COMPLETE = 4,
 };
+
+bool Handle_Invalid(Session* pSession, unsigned char* buffer, int32_t len);
+bool Handle_H2M_Welcome(Session* pSession, IPC_Protocol::H2MWelcome& pkt);
+bool Handle_H2M_MatchMake(Session* pSession, IPC_Protocol::H2MMatchMake& pkt);
+bool Handle_H2M_MatchMakeCancel(Session* pSession, IPC_Protocol::H2MMatchMakeCancel& pkt);
+bool Handle_D2M_InitComplete(Session* pSession, IPC_Protocol::D2MInitComplete& pkt);
 
 #pragma pack(push, 1)
 struct PacketHeader {
@@ -24,18 +31,14 @@ struct PacketHeader {
 };
 #pragma pack(pop)
 
-bool Handle_Invalid(Session* pSession, unsigned char* buffer, int32_t len);
-bool Handle_Http_Welcome(Session* pSession, IPC_Protocol::HttpWelcome& pkt);
-bool Handle_Http_MatchMake(Session* pSession, IPC_Protocol::HttpMatchMake& pkt);
-bool Handle_Http_MatchMakeCancel(Session* pSession, IPC_Protocol::HttpMatchMakeCancel& pkt);
-
-class S2HPacketHandler {
+class PacketHandler {
 public:
 	static void Init() {
 		for (int i=0; i < UINT16_MAX; i++)
 			GProtoPacketHandler[i] = Handle_Invalid;
 
-		GProtoPacketHandler[PKT_ID_HTTP_WELCOME] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::HttpWelcome>(Handle_Http_Welcome, pSession, buffer, len); };
+		GProtoPacketHandler[PKT_ID_H2M_WELCOME] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::H2MWelcome>(Handle_H2M_Welcome, pSession, buffer, len); };
+		GProtoPacketHandler[PKT_ID_D2M_INIT_COMPLETE] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::D2MInitComplete>(Handle_D2M_InitComplete, pSession, buffer, len); };
 	}
 
 	static bool HandlePacket(Session* pSession, unsigned char* buffer, int32_t len) {
@@ -44,11 +47,12 @@ public:
 		return GProtoPacketHandler[header->_id](pSession, buffer, len);
 	}
 
-	static SendBuffer* MakeSendBuffer(const IPC_Protocol::HttpWelcome& pkt) { return MakeSendBuffer(pkt, PKT_ID_HTTP_WELCOME); }
+	static SendBuffer* MakeSendBuffer(const IPC_Protocol::M2HWelcome& pkt) { return MakeSendBuffer(pkt, PKT_ID_M2H_WELCOME); }
+	static SendBuffer* MakeSendBuffer(const IPC_Protocol::D2MInitComplete& pkt) { return MakeSendBuffer(pkt, PKT_ID_D2M_INIT_COMPLETE); }
 
 public:
-	static IPC_Protocol::MainWelcome MakeMainWelcomePkt(int32_t value) {
-        IPC_Protocol::MainWelcome pkt;
+	static IPC_Protocol::M2HWelcome MakeM2HWelcomePkt(int32_t value) {
+        IPC_Protocol::M2HWelcome pkt;
         pkt.set_echo_message(value);
         return pkt;
     }

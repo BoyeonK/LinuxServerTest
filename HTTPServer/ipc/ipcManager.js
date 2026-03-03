@@ -5,10 +5,10 @@ const path = require('path');
 const SOCKET_PATH = '/tmp/https.sock';
 const protoPath = path.join(__dirname, '../IPCProtocol.proto');
 
-const PKT_ID_MAIN_WELCOME = 0;
-const PKT_ID_HTTP_WELCOME = 1;
-const PKT_ID_HTTP_MATCHMAKE = 2;
-const PKT_ID_HTTP_MATCHMAKECANCEL = 3;
+const PKT_ID_M2H_WELCOME = 0;
+const PKT_ID_H2M_WELCOME = 1;
+const PKT_ID_H2M_MATCH_MAKE = 2;
+const PKT_ID_H2M_MATCH_MAKE_CANCEL = 3;
 
 let ipcClient = null;
 let rootProto = null; // Protobuf Root 객체 저장용
@@ -72,8 +72,8 @@ function initIPC() {
 // C++로부터 수신된 패킷 처리 라우터. 그런데 설계상 C++에서 HTTP서버로 뭘 보낼 일이 거의 없긴함..
 function handleIncomingPacket(pktId, payload) {
     try {
-        if (pktId === PKT_ID_MAIN_WELCOME) {
-            const MainWelcome = rootProto.lookupType("IPC_Protocol.MainWelcome");
+        if (pktId === PKT_ID_M2H_WELCOME) {
+            const MainWelcome = rootProto.lookupType("IPC_Protocol.M2MWelcome");
             const message = MainWelcome.decode(payload);
             console.log(`[Node.js IPC] 수신: MainWelcome (echo: ${message.echo_message})`);
         } else {
@@ -113,10 +113,10 @@ function makePacket(pktId, payloadBuffer) {
 // 최초 통신 확인용
 function sendHttpWelcome(echoNum) {
     if (!rootProto) return;
-    const HttpWelcome = rootProto.lookupType("IPC_Protocol.HttpWelcome");
+    const HttpWelcome = rootProto.lookupType("IPC_Protocol.H2MWelcome");
     const payload = HttpWelcome.encode(HttpWelcome.create({ echoMessage: echoNum })).finish();
 
-    sendToCpp(makePacket(PKT_ID_HTTP_WELCOME, payload));
+    sendToCpp(makePacket(PKT_ID_H2M_WELCOME, payload));
 }
 
 // 매치메이킹 요청 처리용
@@ -124,11 +124,11 @@ function sendHttpMatchMake(ticketId) {
     if (!rootProto) return;
 
     // 직렬화하고 헤더 부착
-    const HttpMatchMake = rootProto.lookupType("IPC_Protocol.HttpMatchMake");
+    const HttpMatchMake = rootProto.lookupType("IPC_Protocol.H2MMatchMake");
     const message = HttpMatchMake.create({ ticketRedisKey: ticketId });
     const payload = HttpMatchMake.encode(message).finish();
 
-    sendToCpp(makePacket(PKT_ID_HTTP_MATCHMAKE, payload));
+    sendToCpp(makePacket(PKT_ID_H2M_MATCH_MAKE, payload));
 
     // TODO : 이거 빌드할때는 주석처리하든가 지워야됨
     console.log(`IPC: HttpMatchMake (ticket: ${ticketId})`);
@@ -138,11 +138,11 @@ function sendHttpMatchMake(ticketId) {
 function sendHttpMatchMakeCancel(ticketId) {
     if (!rootProto) return;
 
-    const HttpMatchMakeCancel = rootProto.lookupType("IPC_Protocol.HttpMatchMakeCancel");
+    const HttpMatchMakeCancel = rootProto.lookupType("IPC_Protocol.H2MMatchMakeCancel");
     const message = HttpMatchMakeCancel.create({ ticketRedisKey: ticketId });
     const payload = HttpMatchMakeCancel.encode(message).finish();
 
-    sendToCpp(makePacket(PKT_ID_HTTP_MATCHMAKECANCEL, payload));
+    sendToCpp(makePacket(PKT_ID_H2M_MATCH_MAKE_CANCEL, payload));
 
     // TODO : 이거 빌드할때는 주석처리하든가 지워야됨
     console.log(`IPC: HttpMatchMakeCancel (ticket: ${ticketId})`);

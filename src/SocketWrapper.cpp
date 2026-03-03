@@ -1,8 +1,10 @@
 #include <iostream>
 #include "SocketWrapper.h"
-#include "S2HPacketHandler.h"
+#include "PacketHandler.h"
 #include "IoUringWrapper.h"
 #include "ObjectPool.h"
+#include "DedicateProcess/DediManager.h"
+#include "IPCProtocol/IPCProtocol.pb.h"
 
 void IPCListenSocketWrapper::Init() {
     _listenFd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
@@ -57,22 +59,26 @@ void HttpIPCSession::OnReadComplete(int readBytes) {
     _recvBuffer.OnRead(readBytes);
     if (readBytes > 0) {
         //TODO : OnProcess시점부터의 패킷 처리 시작.
-        if (readBytes < sizeof(PacketHeader)) {
-            return;
-        }
+        while (true) {
+            size_t currentDataSize = _recvBuffer.DataSize();
 
-        PacketHeader header = *(reinterpret_cast<PacketHeader*>(_recvBuffer.ProcessedPos()));
-        if (readBytes < header._size) {
-            return;
-        }
+            if (currentDataSize < sizeof(PacketHeader)) {
+                break;
+            }
+            PacketHeader header = *(reinterpret_cast<PacketHeader*>(_recvBuffer.ProcessedPos()));
 
-        if (S2HPacketHandler::HandlePacket(this, _recvBuffer.ProcessedPos(), readBytes)){
-            _recvBuffer.OnProcess(readBytes);
-            Recv();
-        } 
-        else {
-            //TODO : 뭔가 잘못됨 뭔가 뭔가임
+            if (currentDataSize < header._size) {
+                break;
+            }
+
+            if (PacketHandler::HandlePacket(this, _recvBuffer.ProcessedPos(), header._size)){
+                _recvBuffer.OnProcess(header._size);
+            } else {
+                //TODO : 뭔가 잘못됨 뭔가 뭔가임
+                break;
+            }
         }
+        Recv();
     }
     else if (readBytes == 0) {
         //TODO : 0byte Recv 처리
@@ -120,32 +126,55 @@ void DediIPCSession::OnWriteComplete(int result) {
 }
 
 void DediTempSession::OnReadComplete(int readBytes) {
-    //TODO : 이 부분은 순전히 임시 코드임
-    
-    /*
-    if (readBytes <= 0) {
-        delete this;
-        return;
-    }
-
     _recvBuffer.OnRead(readBytes);
-    if (_recvBuffer.CanProcessSize() < sizeof(PacketHeader)) return;
+    if (readBytes > 0) {
+        if (_recvBuffer.DataSize() < sizeof(PacketHeader)) {
+            Recv();
+            return;
+        }
 
-    PacketHeader* header = reinterpret_cast<PacketHeader*>(_recvBuffer.ProcessedPos());
-    
-    // 신원 확인 패킷(예: PKT_DEDI_IDENTIFY)인지 확인 로직 필요
-    // if (header->id == PKT_DEDI_IDENTIFY) { ... }
+        PacketHeader header = *(reinterpret_cast<PacketHeader*>(_recvBuffer.ProcessedPos()));
+        
+        if (_recvBuffer.DataSize() < header._size) {
+            Recv();
+            return;
+        }
 
-    // 예시: 패킷 바디에서 PID를 추출했다고 가정 (int pid)
-    int childPid = *(reinterpret_cast<int*>(_recvBuffer.ProcessedPos() + sizeof(PacketHeader)));
-
-    // DediManager에게 배달 요청 (pDediManager는 전역변수 가정)
-    if (pDediManager->FinalizeConnection(childPid, this->GetFd())) {
-        this->ReleaseFd(); // 성공 시 FD 소유권 포기
+        void* payloadPtr = _recvBuffer.ProcessedPos() + sizeof(PacketHeader);
+        size_t payloadSize = header._size - sizeof(PacketHeader);
+        IPC_Protocol::D2MInitComplete pkt;
+        if (pkt.ParseFromArray(payloadPtr, static_cast<int>(payloadSize))) {
+            int childPid = pkt.pid();
+            if (pDediManager->FinalizeConnection(childPid, this->GetFd())) {
+                this->ReleaseFd(); // 성공 시 FD 소유권 포기 (DediIPCSession이 가져감)
+            } else {
+                std::cerr << "[DediTemp] Failed to finalize connection for PID: " << childPid << std::endl;
+            }
+            
+            delete this; 
+            return;
+        } else {
+            // 패킷 해석 실패 (잘못된 접근)
+            std::cerr << "[DediTemp] Protobuf Parse Error!" << std::endl;
+            delete this;
+            return;
+        }
     }
-
-    delete this; // 임무 완료 후 자폭
-    */
+    else if (readBytes == 0) {
+        //TODO : 0byte Recv 처리
+    } 
+    else {
+        //TODO : 에러 처리
+        /*
+        switch(readBytes):
+        case -EAGAIN:
+            break;
+        case -EWOULDBLOCK:
+            break;
+        case -ECONNRESET:
+            break;
+        */
+    }
 }
 
 void MainIPCSession::Recv() {
@@ -153,7 +182,8 @@ void MainIPCSession::Recv() {
 }
 
 void MainIPCSession::Send(SendBuffer* sendBuffer) {
-
+    IPCSendTask* pTask = ObjectPool<IPCSendTask>::Acquire(sendBuffer, this);
+    IORing->RegisterIPCSendTask(pTask);
 }
 
 void MainIPCSession::OnReadComplete(int readBytes) {

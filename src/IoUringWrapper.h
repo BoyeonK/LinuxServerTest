@@ -20,7 +20,7 @@ public:
 
     void ExecuteCQTask();
     void RegisterRecv(int fd, void* buf, int32_t len, IOTask* task);
-    void RegisterSendTask(int socketFd, IOTask* task);
+    void RegisterIPCSendTask(IPCSendTask* pIPCSendTask);
     void RegisterAcceptTask(int listenFd, IOTask* task);
 
     SendBuffer* OpenSendBuffer(uint32_t allocSize);

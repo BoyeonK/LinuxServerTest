@@ -10,13 +10,12 @@ enum IOTaskType {
     DISCONNECT_IPC_HTTP,
     ACCEPT_IPC_HTTP,
     READ_IPC_HTTP,
-    SEND_IPC_HTTP,
+    SEND_IPC,
     
     CONNECT_IPC_DEDICATE,
     DISCONNECT_IPC_DEDICATE,
     ACCEPT_IPC_DEDICATE,
     READ_IPC_DEDICATE,
-    SEND_IPC_DEDICATE,
 
     CONNECT_CLIENT,
     DISCONNECT_CLIENT,
@@ -60,4 +59,13 @@ public:
 
 private:
     IoUringWrapper* _uring;
+};
+
+class IPCSendTask : public IOTask {
+public:
+    IPCSendTask(SendBuffer* buffer, Session* session);
+    void callback(int result) override;
+    
+    SendBuffer* pBuffer;
+    Session* pSession;
 };

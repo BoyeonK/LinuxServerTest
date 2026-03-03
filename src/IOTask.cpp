@@ -58,3 +58,21 @@ void DediAcceptTask::callback(int result) {
 
     _uring->RegisterAcceptTask(fd, this);
 }
+
+IPCSendTask::IPCSendTask(SendBuffer* buffer, Session* session) {
+    this->fd = session->_fd;
+    this->pBuffer = buffer;
+    this->pSession = session;
+    this->type = IOTaskType::SEND_IPC;
+}
+
+void IPCSendTask::callback(int result) {
+    pSession->OnWriteComplete(result);
+
+    // TODO : 지금은 한번에 보내진다고 가정하지만,
+    // FM대로 하자면, 모종의 이유로 한번에 모든 버퍼가 보내지지 못하는 경우(result < pBuffer->WriteSize()인 경우)
+    // 그 차분만큼의 버퍼를 재전송 요청하는 로직을 짜야함. (SendBuffer의 _index를 result만큼 시프트, WriteSize를 result만큼 감소시켜서 재시도)
+    // 아마 위의 OnWriteComplete에서 인자로 이 객체의 포인터 this를 넣고 해당 경우를 대비해야겠지만 귀찮으므로 패스 
+    ObjectPool<SendBuffer>::Release(pBuffer);
+    ObjectPool<IPCSendTask>::Release(this);
+}
