@@ -18,6 +18,7 @@ struct MatchTicket {
     }
 };
 
+
 using TicketVector = std::vector<MatchTicket*>;
 
 //map별로 MatchMaker를 만들 예정
