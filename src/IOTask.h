@@ -52,3 +52,12 @@ public:
 private:
     HttpIPCSession* _pSession;
 };
+
+class DediAcceptTask : public IOTask {
+public:
+    DediAcceptTask(int listenFd, IoUringWrapper* uring);
+    void callback(int result) override;
+
+private:
+    IoUringWrapper* _uring;
+};

@@ -7,7 +7,6 @@
 #include <unordered_map>
 
 #include "DedicateMain.h" 
-#include "../GlobalVariable.h"
 #include "../SocketWrapper.h"
 
 class DediManager {
@@ -15,7 +14,6 @@ public:
     DediManager() = default;
     ~DediManager();
 
-private:
     void SpawnSingleServer() {
         pid_t pid = fork();
 
@@ -38,6 +36,35 @@ private:
         }
     }
 
+    void OnAcceptDedi(int DediIPCsockFd, DediTempSession* pTempSession) {
+        _tempSessions[DediIPCsockFd] = pTempSession;
+        pTempSession->Recv();
+    }
+
+    bool FinalizeConnection(int pid, int fd) {
+        auto itTemp = _tempSessions.find(fd);
+        auto itDedi = _dediSessions.find(pid);
+
+        if (itTemp != _tempSessions.end() && itDedi != _dediSessions.end()) {
+            DediTempSession* pTemp = itTemp->second;
+            DediIPCSession* pReal = itDedi->second;
+
+            pReal->BindSocket(fd);      
+               
+            _tempSessions.erase(itTemp);
+
+            std::cout << "[DediManager] PID " << pid << " 연결 및 인증 완료!" << std::endl;
+            return true;
+        }
+        
+        std::cerr << "[DediManager] 인증 실패: 존재하지 않는 PID(" << pid << ") 또는 FD" << std::endl;
+        return false;
+    }
+
 private:
+    //key = pid, 
     std::unordered_map<int, DediIPCSession*> _dediSessions;
+
+    //key = fd, 여기서 pid를 받은 임시 세션을 아래의 pid key의 세션과 합체
+    std::unordered_map<int, DediTempSession*> _tempSessions;
 };

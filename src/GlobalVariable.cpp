@@ -2,7 +2,9 @@
 
 #include "IoUringWrapper.h"
 #include "SocketWrapper.h"
+#include "DedicateProcess/DediManager.h"
 
 IoUringWrapper* IORing = nullptr;
 HttpIPCSession* HttpSession = nullptr;
 sw::redis::Redis* pRedis = nullptr;
+DediManager* pDediManager = nullptr;

@@ -17,6 +17,7 @@
 #include "RedisHandler.h"
 #include "EnvSetter.h"
 #include "DedicateProcess/DedicateMain.h"
+#include "DedicateProcess/DediManager.h"
 
 // 메인 함수에서 인자를 받을 수 있다. 내 세상이 무너졌다.
 int main(int argc, char* argv[]) {
@@ -41,6 +42,7 @@ int main(int argc, char* argv[]) {
     try {
         IORing = new IoUringWrapper();
         pRedis = new sw::redis::Redis(redis_url);
+        pDediManager = new DediManager();
         std::cout << "C1 - OK : 글로벌 변수 초기화 완료" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "C1 - X : 글로벌 변수 초기화 실패: " << e.what() << std::endl;
@@ -80,6 +82,8 @@ int main(int argc, char* argv[]) {
             IORing
         );
         IORing->RegisterAcceptTask(httpsIpc->GetFd(), httpAcceptTask);
+
+        
         
     } catch (const std::exception& e) {
         std::cerr << "C3-2 - X : 소켓 생성 ~ 초기화 실패 : " << e.what() << std::endl;

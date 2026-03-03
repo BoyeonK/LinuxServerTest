@@ -77,6 +77,8 @@ public:
     DediIPCSession(int pid, IoUringWrapper* uring) : Session(-1, uring), _pid(pid), _state(SessionState::Initializing) {}
     ~DediIPCSession();
 
+    void BindSocket(int fd);
+
     void Recv() override;
     void Send(SendBuffer* sendBuffer) override;
 
@@ -91,6 +93,21 @@ private:
     int _pid;
     int _ingamePlayers = 0;
     SessionState _state;
+};
+
+// M2D
+class DediTempSession : public Session {
+public:
+    DediTempSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {};
+    ~DediTempSession() {}
+
+    void ReleaseFd() { _fd = -1; }
+    void Recv() override {}
+    void OnReadComplete(int readBytes) override;
+
+private:
+    void Send(SendBuffer* sendBuffer) override {}
+    void OnWriteComplete(int result) override {}
 };
 
 // D2M

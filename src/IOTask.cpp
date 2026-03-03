@@ -1,6 +1,7 @@
 #include "GlobalVariable.h"
 #include "IOTask.h"
 #include "IoUringWrapper.h"
+#include "DedicateProcess/DediManager.h"
 #include "ObjectPool.h"
 
 H2SAcceptTask::H2SAcceptTask(int listenFd, IoUringWrapper* uring) : _uring(uring) {
@@ -36,4 +37,24 @@ H2SReadTask::H2SReadTask(int fd, void* buf, size_t len, HttpIPCSession* pSession
 void H2SReadTask::callback(int readBytes) {
     _pSession->OnReadComplete(readBytes);
     ObjectPool<H2SReadTask>::Release(this);
+}
+
+DediAcceptTask::DediAcceptTask(int listenFd, IoUringWrapper* uring) : _uring(uring) {
+    fd = listenFd;
+    type = ACCEPT_IPC_DEDICATE;
+}
+
+void DediAcceptTask::callback(int result) {
+    if (result < 0) {
+        _uring->RegisterAcceptTask(fd, this);
+        return;
+    }
+
+    int DediIPCsockFd = result;
+    std::cout << "Dedi IPC 연결 성공 FD: " << DediIPCsockFd << std::endl;
+
+    DediTempSession* pTempSession = new DediTempSession(DediIPCsockFd, _uring);
+    pDediManager->OnAcceptDedi(DediIPCsockFd, pTempSession);
+
+    _uring->RegisterAcceptTask(fd, this);
 }

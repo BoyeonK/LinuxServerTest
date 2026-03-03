@@ -97,6 +97,12 @@ void HttpIPCSession::OnWriteComplete(int result) {
 
 DediIPCSession::~DediIPCSession() {}
 
+void DediIPCSession::BindSocket(int fd) {
+    _fd = fd;
+    _state = DediIPCSession::SessionState::Ready;
+    Recv();
+}
+
 void DediIPCSession::Recv() {
 
 }
@@ -111,6 +117,33 @@ void DediIPCSession::OnReadComplete(int readBytes) {
 
 void DediIPCSession::OnWriteComplete(int result) {
 
+}
+
+void DediTempSession::OnReadComplete(int readBytes) {
+    //TODO : 이 부분은 순전히 임시 코드임
+
+    if (readBytes <= 0) {
+        delete this;
+        return;
+    }
+
+    _recvBuffer.OnRead(readBytes);
+    if (_recvBuffer.CanProcessSize() < sizeof(PacketHeader)) return;
+
+    PacketHeader* header = reinterpret_cast<PacketHeader*>(_recvBuffer.ProcessedPos());
+    
+    // 신원 확인 패킷(예: PKT_DEDI_IDENTIFY)인지 확인 로직 필요
+    // if (header->id == PKT_DEDI_IDENTIFY) { ... }
+
+    // 예시: 패킷 바디에서 PID를 추출했다고 가정 (int pid)
+    int childPid = *(reinterpret_cast<int*>(_recvBuffer.ProcessedPos() + sizeof(PacketHeader)));
+
+    // DediManager에게 배달 요청 (pDediManager는 전역변수 가정)
+    if (pDediManager->FinalizeConnection(childPid, this->GetFd())) {
+        this->ReleaseFd(); // 성공 시 FD 소유권 포기
+    }
+
+    delete this; // 임무 완료 후 자폭
 }
 
 void MainIPCSession::Recv() {
