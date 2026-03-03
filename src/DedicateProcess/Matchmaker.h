@@ -31,7 +31,6 @@ public:
         _pivotMemorizationFlags(maxAgression + 1, false)
     { }
 
-
     void AddSingleMatchTicket(MatchTicket* pTicket);
     void AddNewMatchTickets();
     void AddRematchTickets();
