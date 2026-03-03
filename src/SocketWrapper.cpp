@@ -121,7 +121,8 @@ void DediIPCSession::OnWriteComplete(int result) {
 
 void DediTempSession::OnReadComplete(int readBytes) {
     //TODO : 이 부분은 순전히 임시 코드임
-
+    
+    /*
     if (readBytes <= 0) {
         delete this;
         return;
@@ -144,6 +145,7 @@ void DediTempSession::OnReadComplete(int readBytes) {
     }
 
     delete this; // 임무 완료 후 자폭
+    */
 }
 
 void MainIPCSession::Recv() {
