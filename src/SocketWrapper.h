@@ -72,9 +72,9 @@ public:
         Initializing,
         Ready,
         Terminated,
-    }
+    };
 
-    DediIPCSession(int pid, IoUringWrapper* uring);
+    DediIPCSession(int pid, IoUringWrapper* uring) : Session(-1, uring), _pid(pid), _state(SessionState::Initializing) {}
     ~DediIPCSession();
 
     void Recv() override;
@@ -84,23 +84,24 @@ public:
     void OnWriteComplete(int result) override;
 
     int GetAffordablePlayers() const { 
-        return 50 - ingamePlayers; 
+        return 50 - _ingamePlayers; 
     }
 
 private:
     int _pid;
     int _ingamePlayers = 0;
     SessionState _state;
-}
+};
 
 // D2M
 class MainIPCSession : public Session {
-    MainIPCSession(int fd, IoUringWrapper* uring);
-    ~MainIPCSession();
+public:
+    MainIPCSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {};
+    ~MainIPCSession() {};
 
     void Recv() override;
     void Send(SendBuffer* sendBuffer) override;
 
     void OnReadComplete(int readBytes) override;
     void OnWriteComplete(int result) override;
-}
+};

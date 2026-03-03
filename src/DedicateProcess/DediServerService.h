@@ -10,7 +10,7 @@ class MainIPCSession;
 
 class DediServerService {
 public:
-    DediServerService();
+    DediServerService() {};
     ~DediServerService() {
         if (_dediFd != -1) ::close(_dediFd);
     };
@@ -21,7 +21,8 @@ public:
         /*
         if (InitUDP() == false)
             return false;
-        */  
+        */ 
+        return true;
     }
 
     bool InitMainIPC() {
@@ -61,6 +62,6 @@ private:
     MainIPCSession* _mainSession = nullptr;
 
     //TODO : UDP로 접속한 클라이언트들의 Session을 담은 컨테이너 추가
-} 
+};
 
 extern DediServerService* pDediServer;

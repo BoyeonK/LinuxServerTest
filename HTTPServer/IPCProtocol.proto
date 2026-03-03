@@ -23,3 +23,7 @@ message HttpMatchMake {
 message HttpMatchMakeCancel {
     string ticket_redis_key = 1;
 }
+
+message DediInitComplete {
+    int32 pid = 1;
+}

@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include "../IoUringWrapper.h"
+#include "../GlobalVariable.h"
 #include "DediServerService.h"
 
 DediServerService* pDediServer = nullptr;

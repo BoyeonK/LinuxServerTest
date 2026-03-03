@@ -39,6 +39,9 @@ set(PROJECT_SOURCES
     src/RedisHandler.cpp
 
     src/DedicateProcess/MatchMaker.cpp
+    src/DedicateProcess/DediServerService.cpp
+    src/DedicateProcess/DediManager.cpp
+    src/DedicateProcess/DedicateMain.cpp
 
     src/IPCProtocol/IPCProtocol.pb.cc
 
@@ -56,6 +59,9 @@ set(PROJECT_SOURCES
     src/RedisHandler.h
 
     src/DedicateProcess/MatchMaker.h
+    src/DedicateProcess/DediServerService.h
+    src/DedicateProcess/DediManager.h
+    src/DedicateProcess/DedicateMain.h
 
     src/IPCProtocol/IPCProtocol.pb.h
 )
