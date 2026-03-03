@@ -52,6 +52,7 @@ public:
     RecvBuffer _recvBuffer;
 };
 
+// M2H
 class HttpIPCSession : public Session {
 public:
     HttpIPCSession(int fd, IoUringWrapper* uring);
@@ -63,3 +64,28 @@ public:
     void OnReadComplete(int readBytes) override;
     void OnWriteComplete(int result) override;
 };
+
+// M2D
+class DediIPCSession : public Session {
+public:
+    DediIPCSession(int fd, IoUringWrapper* uring);
+    ~DediIPCSession();
+
+    void Recv() override;
+    void Send(SendBuffer* sendBuffer) override;
+
+    void OnReadComplete(int readBytes) override;
+    void OnWriteComplete(int result) override;
+}
+
+// D2M
+class MainIPCSession : public Session {
+    MainIPCSession(int fd, IoUringWrapper* uring);
+    ~MainIPCSession();
+
+    void Recv() override;
+    void Send(SendBuffer* sendBuffer) override;
+
+    void OnReadComplete(int readBytes) override;
+    void OnWriteComplete(int result) override;
+}

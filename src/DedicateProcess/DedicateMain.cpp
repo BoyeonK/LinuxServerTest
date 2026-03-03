@@ -1,11 +1,18 @@
 #include "DedicateMain.h"
 #include <iostream>
-// #include "IoUringWrapper.h"
-// #include <sys/socket.h>
-// #include <sys/un.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include "../IoUringWrapper.h"
+#include "DediServerService.h"
+
+DediServerService* pDediServer = nullptr;
 
 int DedicateMain(int argc, char* argv[]) {
     std::cout << "[Dedicated] 데디케이티드 전용 프로세스 부팅 완료!" << std::endl;
+
+    const char* env_redis_host  = std::getenv("REDIS_HOST");
+    const char* env_redis_port  = std::getenv("REDIS_PORT");
+    std::string redis_url = "tcp://" + std::string(env_redis_host) + ":" + std::string(env_redis_port);
 
     try {
         IORing = new IoUringWrapper();
@@ -13,13 +20,14 @@ int DedicateMain(int argc, char* argv[]) {
     } catch (const std::exception& e) {
         return 1;
     }
-    // 2. AF_UNIX 소켓 생성 후 "/tmp/dedicate.sock" 으로 connect() 시도
-    // 3. 연결 성공 시 로비 서버에게 "나 PID OOO번 데디 서버인데 준비됐어!" 라고 IPC 메시지 전송
-    // 4. io_uring 무한 루프 진입 (CQ 대기)
+
+    pDediServer = new DediServerService();
+    if (pDediServer->Init() == false) {
+        return 1;
+    }
 
     while (true) {
-        // 데디 전용 이벤트 루프
-        // dedi_uring->ExecuteCQTask();
+        IORing->ExecuteCQTask();
     }
 
     return 0;

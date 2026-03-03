@@ -94,3 +94,25 @@ void HttpIPCSession::OnReadComplete(int readBytes) {
 void HttpIPCSession::OnWriteComplete(int result) {
 
 }
+
+DediIPCSession::DediIPCSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {
+
+}
+
+DediIPCSession::~DediIPCSession() {}
+
+void DediIPCSession::Recv() {
+
+}
+
+void DediIPCSession::Send(SendBuffer* sendBuffer) {
+
+}
+
+void DediIPCSession::OnReadComplete(int readBytes) {
+
+}
+
+void DediIPCSession::OnWriteComplete(int result) {
+
+}
