@@ -57,7 +57,7 @@ bool Handle_H2M_MatchMakeCancel(Session* pSession, IPC_Protocol::H2MMatchMakeCan
 }
 
 bool Handle_D2M_InitComplete(Session* pSession, IPC_Protocol::D2MInitComplete& pkt) {
-    cout << "매치취소 요청 테스트용 콘솔 출력" << endl;
+    cout << "Dedicate서버에서 들어온 최초의 IPC 패킷" << endl;
 
     return true;
 }
