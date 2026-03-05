@@ -8,11 +8,37 @@
 
 #include "DedicateMain.h" 
 #include "../SocketWrapper.h"
+#include "Matchmaker.h"
 
 class DediManager {
+enum MapType : int32_t {
+    MAP_NONE = -1,
+    MAP_TUTORIAL = 0,
+    MAP_DESERT,
+    MAP_FOREST,
+    MAP_MAX
+};
+static constexpr int MAX_AGRESSION = 20;
+
 public:
-    DediManager() = default;
+    DediManager() {
+        _matchmakers.reserve(MapType::MAP_MAX);
+        for (int i = 0; i < MapType::MAP_MAX; i++) {
+            _matchmakers.emplace_back(i, MAX_AGRESSION);
+        }
+    }
     ~DediManager();
+
+    bool AddSingleMatchTicket(MatchTicket* pTicket) {
+        int32_t mid = pTicket->mapId;
+
+        if (mid >= 0 && mid < MapType::MAP_MAX) {
+            _matchmakers[mid].AddSingleMatchTicket(pTicket);
+            return true;
+        }
+        else 
+            return false;
+    }
 
     void SpawnSingleServer() {
         pid_t pid = fork();
@@ -67,4 +93,7 @@ private:
 
     //key = fd, 여기서 pid를 받은 임시 세션을 아래의 pid key의 세션과 합체
     std::unordered_map<int, DediTempSession*> _tempSessions;
+
+    //index = mapid
+    std::vector<MatchMaker> _matchmakers;
 };

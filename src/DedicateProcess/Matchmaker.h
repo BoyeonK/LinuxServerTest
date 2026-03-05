@@ -6,12 +6,16 @@
 #include <cstdint>
 
 struct MatchTicket {
+    MatchTicket(std::string tid, int32_t uid, int32_t aggr, int32_t mid)
+    : ticketId(tid), uId(uid), aggression(aggr), mapId(mid), startTime(std::chrono::steady_clock::now()) ,isMatched(false)
+    { }
+
     std::string ticketId;
-    std::string uid;
+    int32_t uId;
     int32_t aggression;
     int32_t mapId;
-    bool isMatched = false;
     std::chrono::time_point<std::chrono::steady_clock> startTime;
+    bool isMatched = false;
     int32_t GetWaitTimeSeconds() const {
         auto now = std::chrono::steady_clock::now();
         return std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count();

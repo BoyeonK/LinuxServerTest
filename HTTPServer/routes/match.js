@@ -78,6 +78,7 @@ router.post('/start', requireAuth, async (req, res) => {
     const { user_id, db_id, rating, aggression } = req.sessionData;
 
     try {
+        // TODO : 매칭 시도한 순간, 인벤토리를 잠궈야 할듯?
         if (loadoutType !== 'FREE' && loadoutType !== 'CUSTOM') {
             return res.status(400).json(makeResponse(false, 400, null, { message: "잘못된 loadoutType 입니다." }));
         }
@@ -95,6 +96,7 @@ router.post('/start', requireAuth, async (req, res) => {
 
             if (equippedItems && Array.isArray(equippedItems) && equippedItems.length > 0) {
                 const requestedItemIds = equippedItems.map(item => item.itemId);
+                // Set으로 바꿨는데 수량 다르면, 중복있음. 클라이언트에서 중복제거 하고 올 것
                 const uniqueItemIds = new Set(requestedItemIds);
                 if (uniqueItemIds.size !== requestedItemIds.length) {
                     return res.status(400).json(makeResponse(false, 400, null, { message: "중복된 아이템 ID가 포함되어 있습니다." }));
