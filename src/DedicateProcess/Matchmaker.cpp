@@ -7,6 +7,7 @@
 #include <sw/redis++/redis++.h>
 #include "../GlobalVariable.h"
 #include "../ObjectPool.h"
+#include "DediManager.h"
 
 // ipc를 통해 받은 ticket에 해당하는 구조체를 대기열에 추가할 함수
 // 현재 매치메이킹 프로세스(메인 프로세스)는 싱글스레드로 동작할 예정이므로 mutex를 포함한 동기화 사용 X
