@@ -16,13 +16,16 @@ enum : uint16_t {
 	PKT_ID_H2M_MATCH_MAKE = 2,
 	PKT_ID_H2M_MATCH_MAKE_CANCEL = 3,
 	PKT_ID_D2M_INIT_COMPLETE = 4,
+	PKT_ID_M2D_MAKE_ROOM_FOR_THIS_GROUP = 5,
 };
 
+// D로끝나는 경우와 M으로 끝나는 경우 (수신자가 메인 or 데디인경우)
 bool Handle_Invalid(Session* pSession, unsigned char* buffer, int32_t len);
 bool Handle_H2M_Welcome(Session* pSession, IPC_Protocol::H2MWelcome& pkt);
 bool Handle_H2M_MatchMake(Session* pSession, IPC_Protocol::H2MMatchMake& pkt);
 bool Handle_H2M_MatchMakeCancel(Session* pSession, IPC_Protocol::H2MMatchMakeCancel& pkt);
 bool Handle_D2M_InitComplete(Session* pSession, IPC_Protocol::D2MInitComplete& pkt);
+bool Handle_M2D_MakeRoomForThisGroup(Session* pSession, IPC_Protocol::M2DMakeRoomForThisGroup& pkt);
 
 #pragma pack(push, 1)
 struct PacketHeader {
@@ -39,6 +42,7 @@ public:
 
 		GProtoPacketHandler[PKT_ID_H2M_WELCOME] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::H2MWelcome>(Handle_H2M_Welcome, pSession, buffer, len); };
 		GProtoPacketHandler[PKT_ID_D2M_INIT_COMPLETE] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::D2MInitComplete>(Handle_D2M_InitComplete, pSession, buffer, len); };
+		GProtoPacketHandler[PKT_ID_M2D_MAKE_ROOM_FOR_THIS_GROUP] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::M2DMakeRoomForThisGroup>(Handle_M2D_MakeRoomForThisGroup, pSession, buffer, len); };
 	}
 
 	static bool HandlePacket(Session* pSession, unsigned char* buffer, int32_t len) {
@@ -49,6 +53,7 @@ public:
 
 	static SendBuffer* MakeSendBuffer(const IPC_Protocol::M2HWelcome& pkt) { return MakeSendBuffer(pkt, PKT_ID_M2H_WELCOME); }
 	static SendBuffer* MakeSendBuffer(const IPC_Protocol::D2MInitComplete& pkt) { return MakeSendBuffer(pkt, PKT_ID_D2M_INIT_COMPLETE); }
+	static SendBuffer* MakeSendBuffer(const IPC_Protocol::M2DMakeRoomForThisGroup& pkt) { return MakeSendBuffer(pkt, PKT_ID_M2D_MAKE_ROOM_FOR_THIS_GROUP); }
 
 public:
 	static IPC_Protocol::M2HWelcome MakeM2HWelcomePkt(int32_t value) {

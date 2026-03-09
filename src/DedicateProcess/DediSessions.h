@@ -1,6 +1,8 @@
 #pragma once
 #include "../SocketWrapper.h"
 #include "Matchmaker.h"
+#include "../IPCProtocol/IPCProtocol.pb.h"
+#include "PacketHandler.h"
 
 // M2D
 class DediIPCSession : public Session {
@@ -30,7 +32,9 @@ public:
     bool AllocatePlayers(TicketVector& ticketVec) {
         if (GetAffordablePlayers() >= static_cast<int>(ticketVec.size()) && _state != SessionState::Terminated) {
             _allocatedPlayers += ticketVec.size();
-            _tempTV.push_back(std::move(ticketVec));
+
+            IPC_Protocol::M2DMakeRoomForThisGroup pkt = MakeM2DMakeRoomForThisGroup(ticketVec);
+            _tempMatchPkts.push_back(std::move(pkt));
 
             if (_state == SessionState::Ready)
                 FlushPendingTickets(); 
@@ -41,22 +45,34 @@ public:
     }
 
     void FlushPendingTickets() {
-        if (_tempTV.empty()) return;
+        if (_tempMatchPkts.empty()) return;
 
-        for (auto& group : _tempTV) {
-            // TODO: group(TicketVector) 데이터를 Protobuf 패킷으로 직렬화
-            // SendBuffer* buffer = MakeAllocationPacket(group);
-            // Send(buffer);
+        for (auto& pkt : _tempMatchPkts) {
+            SendBuffer* sendBuffer = PacketHandler::MakeSendBuffer(pkt);
+            Send(sendBuffer);
         }
-        _tempTV.clear();
+        _tempMatchPkts.clear();
     }
 
 private:
+    static IPC_Protocol::M2DMakeRoomForThisGroup MakeM2DMakeRoomForThisGroup(TicketVector& group) {
+		IPC_Protocol::M2DMakeRoomForThisGroup pkt;
+
+        pkt.mutable_ticket_id()->Reserve(group.size());
+
+        for (auto& ticket : group) {
+            if (ticket != nullptr) {
+                pkt.add_ticket_id(ticket->ticketId);
+            }
+        }
+        return pkt;
+	}
+
     int _pid;
     int _ingamePlayers = 0;
     int _allocatedPlayers = 0;
     SessionState _state;
-    std::vector<TicketVector> _tempTV;
+    std::vector<IPC_Protocol::M2DMakeRoomForThisGroup> _tempMatchPkts;
 };
 
 // M2D

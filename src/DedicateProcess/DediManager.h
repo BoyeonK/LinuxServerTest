@@ -89,19 +89,18 @@ public:
         return false;
     }
 
-    void DistributePlayerGroup(TicketVector& ticketVec) {
+    bool DistributePlayerGroup(TicketVector& ticketVec) {
         if (FindAvailableSessionAndDistributePlayerGroup(ticketVec) == true)
-            return;
+            return true;
 
         //TODO : 새로 만들어서 할당
         int pid = SpawnSingleServer();
 
         if (pid == -1) {
-            // TODO: 해당 ticketVec을 매치메이킹 큐로 돌려보내기 (새 프로ㅜ세스 할당 실패)
-            return; 
+            return false;
         }
 
-        DistributePlayerGroup(ticketVec, pid);
+        return DistributePlayerGroup(ticketVec, pid);
     }
 
 private:
@@ -114,14 +113,15 @@ private:
         return false;
     }
 
-    void DistributePlayerGroup(TicketVector& ticketVec, int pid) {
+    bool DistributePlayerGroup(TicketVector& ticketVec, int pid) {
         auto it = _dediSessions.find(pid);
         
         if (it != _dediSessions.end()) {
-            it->second->AllocatePlayers(ticketVec);
+            return it->second->AllocatePlayers(ticketVec);
         } else {
             std::cerr << "DediManager - DistributePlayersGroup 존재하지 않는 세션 PID: " << pid << std::endl;
         }
+        return false;
     }
 
 private:

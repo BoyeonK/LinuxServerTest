@@ -17,7 +17,7 @@ void DediIPCSession::Recv() {
 }
 
 void DediIPCSession::Send(SendBuffer* sendBuffer) {
-
+    
 }
 
 void DediIPCSession::OnReadComplete(int readBytes) {

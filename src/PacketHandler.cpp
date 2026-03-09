@@ -69,3 +69,9 @@ bool Handle_D2M_InitComplete(Session* pSession, IPC_Protocol::D2MInitComplete& p
 
     return true;
 }
+
+bool Handle_M2D_MakeRoomForThisGroup(Session* pSession, IPC_Protocol::M2DMakeRoomForThisGroup& pkt) {
+    // TODO : repeated string ticket_id를 순서대로 읽고
+    // 방 생성.
+    return true;
+}

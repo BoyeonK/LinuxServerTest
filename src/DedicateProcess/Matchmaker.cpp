@@ -272,8 +272,8 @@ bool MatchMaker::VerifyAndSetMatchStatus(const TicketVector& matchedGroup) {
 void MatchMaker::StartMatchMakeInternal() {
     for (auto& ticketVec : _matchedGroups) {
         bool isMatchValid = VerifyAndSetMatchStatus(ticketVec);
-        if (isMatchValid) {
-            pDediManager->DistributePlayerGroup(ticketVec);
+        if (isMatchValid && pDediManager->DistributePlayerGroup(ticketVec)) {
+            
         } else {
             for (MatchTicket* ticket : ticketVec) {
                 auto statusOpt = pRedis->hget("ticket_" + ticket->ticketId, "status");
