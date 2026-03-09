@@ -33,7 +33,7 @@ void MatchMaker::AddNewMatchTickets() {
         _bucket[ticket->aggression].push_back(ticket);
     }
 
-    // 1-2. 정렬된 _ticketsToAdd를 _timeSortedTicketVector와 병합 (O(N) 속도!)
+    // 1-2. 정렬된 _ticketsToAdd를 _timeSortedTicketVector와 병합
     TicketVector newMainQueue;
     newMainQueue.reserve(_timeSortedTicketVector.size() + _ticketsToAdd.size()); // 메모리 재할당 방지
 
@@ -249,7 +249,7 @@ bool MatchMaker::VerifyAndSetMatchStatus(const TicketVector& matchedGroup) {
     keys.reserve(matchedGroup.size());
     for (MatchTicket* ticket : matchedGroup) {
         // TODO : 형식 확인 필요
-        keys.push_back("ticket_" + ticket->ticketId); 
+        keys.push_back(ticket->ticketId); 
     }
 
     std::vector<std::string> args = {"INPROGRESS"}; 
@@ -272,11 +272,21 @@ bool MatchMaker::VerifyAndSetMatchStatus(const TicketVector& matchedGroup) {
 void MatchMaker::StartMatchMakeInternal() {
     for (auto& ticketVec : _matchedGroups) {
         bool isMatchValid = VerifyAndSetMatchStatus(ticketVec);
-        if (isMatchValid && pDediManager->DistributePlayerGroup(ticketVec)) {
-            
+        if (isMatchValid) {
+            if (pDediManager->DistributePlayerGroup(ticketVec)) {
+                _ticketsToDelete.insert(_ticketsToDelete.end(), ticketVec.begin(), ticketVec.end());
+            } else {
+                auto pipe = pRedis->pipeline();
+                for (const auto& ticket : ticketVec) {
+                    pipe.hset(ticket->ticketId, "status", "WAITING");
+                    ticket->isMatched = false;
+                    _ticketsToRematch[ticket->aggression].push_back(ticket);
+                }
+                pipe.exec();
+            }
         } else {
-            for (MatchTicket* ticket : ticketVec) {
-                auto statusOpt = pRedis->hget("ticket_" + ticket->ticketId, "status");
+            for (auto& ticket : ticketVec) {
+                auto statusOpt = pRedis->hget(ticket->ticketId, "status");
 
                 if (statusOpt && *statusOpt == "WAITING") {
                     ticket->isMatched = false;
