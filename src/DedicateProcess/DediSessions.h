@@ -28,11 +28,27 @@ public:
     }
 
     bool AllocatePlayers(TicketVector& ticketVec) {
-        if (GetAffordablePlayers >= ticketVec.size() && _state != SessionState::Terminated) {
+        if (GetAffordablePlayers() >= static_cast<int>(ticketVec.size()) && _state != SessionState::Terminated) {
+            _allocatedPlayers += ticketVec.size();
             _tempTV.push_back(std::move(ticketVec));
+
+            if (_state == SessionState::Ready)
+                FlushPendingTickets(); 
+
             return true;
         }
         return false;
+    }
+
+    void FlushPendingTickets() {
+        if (_tempTV.empty()) return;
+
+        for (auto& group : _tempTV) {
+            // TODO: group(TicketVector) 데이터를 Protobuf 패킷으로 직렬화
+            // SendBuffer* buffer = MakeAllocationPacket(group);
+            // Send(buffer);
+        }
+        _tempTV.clear();
     }
 
 private:

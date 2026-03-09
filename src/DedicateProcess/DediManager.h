@@ -40,12 +40,12 @@ public:
             return false;
     }
 
-    void SpawnSingleServer() {
+    int SpawnSingleServer() {
         pid_t pid = fork();
 
         if (pid < 0) {
             std::cerr << "C4-1 - X : 프로세스 생성(fork) 실패!" << std::endl;
-            return;
+            return -1;
         }
         // 이론상 else구문의 pSession의 생성이 execl으로 실행된 DedicateMain의 초기화과정보다 늦으면 에러 발생함.
         // 하지만,
@@ -59,7 +59,9 @@ public:
             DediIPCSession* pSession = new DediIPCSession(pid, IORing);
             _dediSessions[pid] = pSession;
             std::cout << "C4-1 - OK : 데디케이티드 프로세스 띄움 - PID: " << pid << std::endl;
+            return pid;
         }
+        return -1;
     }
 
     void OnAcceptDedi(int DediIPCsockFd, DediTempSession* pTempSession) {
@@ -85,6 +87,41 @@ public:
         
         std::cerr << "C4-2 : X 인증 실패: 존재하지 않는 PID(" << pid << ") 또는 FD" << std::endl;
         return false;
+    }
+
+    void DistributePlayerGroup(TicketVector& ticketVec) {
+        if (FindAvailableSessionAndDistributePlayerGroup(ticketVec) == true)
+            return;
+
+        //TODO : 새로 만들어서 할당
+        int pid = SpawnSingleServer();
+
+        if (pid == -1) {
+            // TODO: 해당 ticketVec을 매치메이킹 큐로 돌려보내기 (새 프로ㅜ세스 할당 실패)
+            return; 
+        }
+
+        DistributePlayerGroup(ticketVec, pid);
+    }
+
+private:
+    bool FindAvailableSessionAndDistributePlayerGroup(TicketVector& ticketVec) {
+        for (const auto& [pid, pSession] : _dediSessions) {
+            if (pSession->AllocatePlayers(ticketVec)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void DistributePlayerGroup(TicketVector& ticketVec, int pid) {
+        auto it = _dediSessions.find(pid);
+        
+        if (it != _dediSessions.end()) {
+            it->second->AllocatePlayers(ticketVec);
+        } else {
+            std::cerr << "DediManager - DistributePlayersGroup 존재하지 않는 세션 PID: " << pid << std::endl;
+        }
     }
 
 private:

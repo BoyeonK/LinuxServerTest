@@ -272,10 +272,7 @@ void MatchMaker::StartMatchMakeInternal() {
     for (auto& ticketVec : _matchedGroups) {
         bool isMatchValid = VerifyAndSetMatchStatus(ticketVec);
         if (isMatchValid) {
-            // 통과했다면, 데디케이티드 서버(방)에 할당, 이후 ipc를 통해 할당되었다는 사실을 dedicated process에 알림.
-            // 할당된 프로세스가 온전히 준비되면, 그 프로세스 측에서 Redis에 존재하는 Ticket에 상태를 SUCCESS로 변경하고, IP주소를 꽂아둘거임.
-            _ticketsToDelete.insert(_ticketsToDelete.end(), ticketVec.begin(), ticketVec.end());
-            
+            pDediManager->DistributePlayerGroup(ticketVec);
         } else {
             for (MatchTicket* ticket : ticketVec) {
                 auto statusOpt = pRedis->hget("ticket_" + ticket->ticketId, "status");
