@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 #include "DedicateMain.h" 
-#include "../SocketWrapper.h"
+#include "DediSessions.h"
 #include "Matchmaker.h"
 
 class DediManager {
@@ -75,7 +75,7 @@ public:
             DediTempSession* pTemp = itTemp->second;
             DediIPCSession* pReal = itDedi->second;
 
-            pReal->BindSocket(fd);      
+            pReal->BindSocket(fd);
                
             _tempSessions.erase(itTemp);
 

@@ -18,6 +18,7 @@
 #include "EnvSetter.h"
 #include "DedicateProcess/DedicateMain.h"
 #include "DedicateProcess/DediManager.h"
+#include "DedicateProcess/DediSessions.h"
 
 // 메인 함수에서 인자를 받을 수 있다. 내 세상이 무너졌다.
 int main(int argc, char* argv[]) {

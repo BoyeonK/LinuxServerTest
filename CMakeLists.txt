@@ -42,6 +42,7 @@ set(PROJECT_SOURCES
     src/DedicateProcess/DediServerService.cpp
     src/DedicateProcess/DediManager.cpp
     src/DedicateProcess/DedicateMain.cpp
+    src/DedicateProcess/DediSessions.cpp
 
     src/IPCProtocol/IPCProtocol.pb.cc
 
@@ -62,6 +63,7 @@ set(PROJECT_SOURCES
     src/DedicateProcess/DediServerService.h
     src/DedicateProcess/DediManager.h
     src/DedicateProcess/DedicateMain.h
+    src/DedicateProcess/DediSessions.h
 
     src/IPCProtocol/IPCProtocol.pb.h
 )

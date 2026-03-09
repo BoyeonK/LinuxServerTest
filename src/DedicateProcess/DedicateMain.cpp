@@ -32,6 +32,8 @@ int DedicateMain(int argc, char* argv[]) {
 
     while (true) {
         IORing->ExecuteCQTask();
+
+        std::this_thread::yield();
     }
 
     return 0;

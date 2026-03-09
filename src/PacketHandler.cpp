@@ -1,6 +1,11 @@
 #include "PacketHandler.h"
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <iterator>
+#include "ObjectPool.h"
+#include "DedicateProcess/Matchmaker.h"
+#include "DedicateProcess/DediManager.h"
 
 using namespace std;
 
@@ -26,7 +31,8 @@ bool Handle_H2M_MatchMake(Session* pSession, IPC_Protocol::H2MMatchMake& pkt) {
     // 3. Matchmaker의 AddSingleMatchTicket으로 대기열에 추가한다.
     string ticketKey = pkt.ticket_redis_key();
     try {
-        auto val = pRedis->hgetall(ticketKey);
+        std::unordered_map<std::string, std::string> val;
+        pRedis->hgetall(ticketKey, std::inserter(val, val.begin()));
         if (val.empty()) return false;
 
         MatchTicket* pTicket = ObjectPool<MatchTicket>::Acquire(
@@ -57,7 +63,9 @@ bool Handle_H2M_MatchMakeCancel(Session* pSession, IPC_Protocol::H2MMatchMakeCan
 }
 
 bool Handle_D2M_InitComplete(Session* pSession, IPC_Protocol::D2MInitComplete& pkt) {
-    cout << "Dedicate서버에서 들어온 최초의 IPC 패킷" << endl;
+    // 이 함수가 실행될 일은 없다. 정작 이 패킷을 사용해야 할 TempSession은 패킷 핸들러를 참조하지 않고
+    // D2M_InitComplete를 처리할 전용 함수를 들고 있음.
+    cout << "이거 보면 병슨 ㅋ" << endl;
 
     return true;
 }

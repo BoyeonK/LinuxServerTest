@@ -7,6 +7,7 @@
 #include <cstring>
 #include "../PacketHandler.h"
 #include "../IPCProtocol/IPCProtocol.pb.h"
+#include "DediSessions.h"
 
 class MainIPCSession;
 
