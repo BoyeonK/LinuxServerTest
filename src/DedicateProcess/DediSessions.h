@@ -3,6 +3,7 @@
 #include "Matchmaker.h"
 #include "../IPCProtocol/IPCProtocol.pb.h"
 #include "PacketHandler.h"
+#include "UDPTask.h"
 
 // M2D
 class DediIPCSession : public Session {
@@ -101,4 +102,52 @@ public:
 
     void OnReadComplete(int readBytes) override;
     void OnWriteComplete(int result) override;
+};
+
+class D2CSession {
+public:
+    D2CSession(int fd, IoUringWrapper* ring) : _fd(fd), _uring(ring) {
+        // msghdr 및 iovec 메모리 세팅 (세션이 생성될 때 한 번만 해두면 됩니다)
+        _iovec.iov_base = _recvBuffer;
+        _iovec.iov_len = sizeof(_recvBuffer);
+
+        _msgHdr.msg_name = &_clientAddr;
+        _msgHdr.msg_namelen = sizeof(_clientAddr);
+        _msgHdr.msg_iov = &_iovec;
+        _msgHdr.msg_iovlen = 1;
+        _msgHdr.msg_control = nullptr;
+        _msgHdr.msg_controllen = 0;
+    }
+
+    void RegisterRecv() {
+        D2CRecvTask* recvTask = ObjectPool<D2CRecvTask>::Acquire(_fd, this);
+        
+        _uring->RegisterRecvMsg(_fd, &_msgHdr, recvTask);
+    }
+
+    void OnRecvComplete(int bytesTransferred) {
+        if (bytesTransferred > 0) {
+            // 송신자 IP/Port 확인 가능
+            uint16_t port = ntohs(_clientAddr.sin_port);
+            std::cout << "[UDP Recv] " << bytesTransferred << " bytes from port " << port << std::endl;
+
+            // TODO: 버퍼(_recvBuffer) 파싱 -> TicketID 추출 -> 라우팅
+        }
+
+        RegisterRecv();
+    }
+
+    void OnWriteComplete(int result) {
+
+    }
+
+private:
+    int _fd;
+    IoUringWrapper* _uring;
+
+    // io_uring 비동기 작업 동안 메모리가 유지되어야 하는 변수들 (Session이 소유!)
+    struct sockaddr_in _clientAddr = {};
+    struct iovec _iovec = {};
+    struct msghdr _msgHdr = {};
+    unsigned char _recvBuffer[2048] = {0};
 };

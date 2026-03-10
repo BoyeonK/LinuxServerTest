@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
 #include "../PacketHandler.h"
@@ -104,7 +105,8 @@ public:
 
         std::cout << "D3-3 - OK : UDP 서버 준비 완료! EC2 통신용 포트: " << _udpPort << std::endl;
 
-        // TODO: io_uring에 이 _udpFd를 등록하고 RecvFrom 대기 상태로 진입하는 로직 추가
+        _pClientSession = new D2CSession(_udpFd, IORing);
+        _pClientSession->RegisterRecv();
         
         return true;
     }
@@ -112,6 +114,7 @@ public:
 private:
     int _dediFd = -1;
     MainIPCSession* _mainSession = nullptr;
+    D2CSession* _pClientSession = nullptr;
 
     int _udpFd = -1;
     uint16_t _udpPort = 0;

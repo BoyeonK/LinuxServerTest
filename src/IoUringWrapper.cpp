@@ -29,6 +29,9 @@ void IoUringWrapper::ExecuteCQTask() {
 
 void IoUringWrapper::RegisterRecv(int fd, void* buf, int32_t len, IOTask* task) {
     struct io_uring_sqe *sqe = io_uring_get_sqe(&_ring);
+    if (!sqe) {
+        return;
+    }
 
     io_uring_prep_read(sqe, fd, buf, len, 0);
     io_uring_sqe_set_data(sqe, task);
@@ -47,6 +50,18 @@ void IoUringWrapper::RegisterIPCSendTask(IPCSendTask* pIPCSendTask) {
     io_uring_prep_send(sqe, pIPCSendTask->fd, pIPCSendTask->pBuffer->Buffer(), pIPCSendTask->pBuffer->WriteSize(), 0);
     io_uring_sqe_set_data(sqe, pIPCSendTask);
 
+    io_uring_submit(&_ring);
+}
+
+void IoUringWrapper::RegisterRecvMsg(int fd, struct msghdr* msg, IOTask* task) {
+    struct io_uring_sqe* sqe = io_uring_get_sqe(&_ring);
+    if (!sqe) {
+        return;
+    }
+
+    io_uring_prep_recvmsg(sqe, fd, msg, 0);
+    io_uring_sqe_set_data(sqe, task);
+    
     io_uring_submit(&_ring);
 }
 
