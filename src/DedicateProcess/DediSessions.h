@@ -6,7 +6,7 @@
 #include "UDPTask.h"
 
 // M2D
-class DediIPCSession : public Session {
+class M2DSession : public Session {
 static constexpr int MAX_PLAYER_PER_PROCESS = 50;
 public:
     enum class SessionState {
@@ -15,8 +15,8 @@ public:
         Terminated,
     };
 
-    DediIPCSession(int pid, IoUringWrapper* uring) : Session(-1, uring), _pid(pid), _state(SessionState::Initializing) {}
-    ~DediIPCSession();
+    M2DSession(int pid, IoUringWrapper* uring) : Session(-1, uring), _pid(pid), _state(SessionState::Initializing) {}
+    ~M2DSession();
 
     void BindSocket(int fd);
 
@@ -77,10 +77,10 @@ private:
 };
 
 // M2D
-class DediTempSession : public Session {
+class M2DTempSession : public Session {
 public:
-    DediTempSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {};
-    ~DediTempSession() {}
+    M2DTempSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {};
+    ~M2DTempSession() {}
 
     void ReleaseFd() { _fd = -1; }
     void Recv() override;

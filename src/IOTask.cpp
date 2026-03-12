@@ -52,7 +52,7 @@ void DediAcceptTask::callback(int result) {
 
     int DediIPCsockFd = result;
 
-    DediTempSession* pTempSession = new DediTempSession(DediIPCsockFd, _uring);
+    M2DTempSession* pTempSession = new M2DTempSession(DediIPCsockFd, _uring);
     pDediManager->OnAcceptDedi(DediIPCsockFd, pTempSession);
 
     _uring->RegisterAcceptTask(fd, this);

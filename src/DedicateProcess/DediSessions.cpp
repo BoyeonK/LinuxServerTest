@@ -4,36 +4,36 @@
 #include "../PacketHandler.h"
 #include "DediManager.h"
 
-DediIPCSession::~DediIPCSession() {}
+M2DSession::~M2DSession() {}
 
-void DediIPCSession::BindSocket(int fd) {
+void M2DSession::BindSocket(int fd) {
     _fd = fd;
-    _state = DediIPCSession::SessionState::Ready;
+    _state = M2DSession::SessionState::Ready;
     Recv();
 }
 
-void DediIPCSession::Recv() {
+void M2DSession::Recv() {
 
 }
 
-void DediIPCSession::Send(SendBuffer* sendBuffer) {
+void M2DSession::Send(SendBuffer* sendBuffer) {
     
 }
 
-void DediIPCSession::OnReadComplete(int readBytes) {
+void M2DSession::OnReadComplete(int readBytes) {
 
 }
 
-void DediIPCSession::OnWriteComplete(int result) {
+void M2DSession::OnWriteComplete(int result) {
 
 }
 
-void DediTempSession::Recv() {
+void M2DTempSession::Recv() {
     DediRecvTask* readTask = ObjectPool<DediRecvTask>::Acquire(_fd, _recvBuffer.ReadPos(), _recvBuffer.FreeSize(), this);
     _uring->RegisterRecv(_fd, _recvBuffer.ReadPos(), _recvBuffer.FreeSize(), readTask);
 }
 
-void DediTempSession::OnReadComplete(int readBytes) {
+void M2DTempSession::OnReadComplete(int readBytes) {
     _recvBuffer.OnRead(readBytes);
     if (readBytes > 0) {
         if (_recvBuffer.DataSize() < sizeof(PacketHeader)) {
@@ -54,7 +54,7 @@ void DediTempSession::OnReadComplete(int readBytes) {
         if (pkt.ParseFromArray(payloadPtr, static_cast<int>(payloadSize))) {
             int childPid = pkt.pid();
             if (pDediManager->FinalizeConnection(childPid, this->GetFd())) {
-                this->ReleaseFd(); // 성공 시 FD 소유권 포기 (DediIPCSession이 가져감)
+                this->ReleaseFd(); // 성공 시 FD 소유권 포기 (M2DSession이 가져감)
             } else {
                 std::cerr << "[DediTemp] Failed to finalize connection for PID: " << childPid << std::endl;
             }
