@@ -100,9 +100,10 @@ int main(int argc, char* argv[]) {
     pDediManager->SpawnSingleServer();
 
     while (true) {
-        IORing->ExecuteCQTask();
+        pDediManager->MatchMake();
 
-        std::this_thread::yield();
+        if (IORing->ExecuteCQTask() == false)
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     return 0;

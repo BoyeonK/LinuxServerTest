@@ -18,7 +18,7 @@ public:
     IoUringWrapper(const IoUringWrapper&) = delete;
     IoUringWrapper& operator=(const IoUringWrapper&) = delete;
 
-    void ExecuteCQTask();
+    bool ExecuteCQTask();
     // TCP (IPC)
     void RegisterRecv(int fd, void* buf, int32_t len, IOTask* task);
     void RegisterIPCSendTask(IPCSendTask* pIPCSendTask);

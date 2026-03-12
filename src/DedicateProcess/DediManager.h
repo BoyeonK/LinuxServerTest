@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <cstdlib> 
+#include <chrono>
 #include <unordered_map>
 
 #include "DedicateMain.h" 
@@ -104,6 +105,19 @@ public:
         return DistributePlayerGroup(ticketVec, pid);
     }
 
+    void MatchMake() {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - _lastTimeMatchStarted).count();
+
+        if (elapsedMs >= 1000) {
+            _lastTimeMatchStarted = now;
+
+            for (auto& matchmaker : _matchmakers) {
+                matchmaker.StartMatchMake();
+            }
+        }
+    }
+
 private:
     bool FindAvailableSessionAndDistributePlayerGroup(TicketVector& ticketVec) {
         for (const auto& [pid, pSession] : _dediSessions) {
@@ -134,4 +148,6 @@ private:
 
     //index = mapid
     std::vector<MatchMaker> _matchmakers;
+
+    std::chrono::time_point<std::chrono::steady_clock> _lastTimeMatchStarted;
 };

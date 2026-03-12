@@ -14,17 +14,22 @@ IoUringWrapper::~IoUringWrapper() {
     io_uring_queue_exit(&_ring);
 }
 
-void IoUringWrapper::ExecuteCQTask() {
+bool IoUringWrapper::ExecuteCQTask() {
+    bool ret = false;
     struct io_uring_cqe* cqe = nullptr;
 
+    // cq에 완료된 작업이 있는 경우
     while (io_uring_peek_cqe(&_ring, &cqe) == 0) {
         if (!cqe) break;
 
         IOTask* task = reinterpret_cast<IOTask*>(io_uring_cqe_get_data(cqe));
         if (task) task->callback(cqe->res);
 
+        // cq맨앞의 값을 pop (처리된 작업)
         io_uring_cqe_seen(&_ring, cqe);
+        ret = true;
     }
+    return ret;
 }
 
 void IoUringWrapper::RegisterRecv(int fd, void* buf, int32_t len, IOTask* task) {
