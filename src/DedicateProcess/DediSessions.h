@@ -92,10 +92,10 @@ private:
 };
 
 // D2M
-class MainIPCSession : public Session {
+class D2MSession : public Session {
 public:
-    MainIPCSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {};
-    ~MainIPCSession() {};
+    D2MSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {};
+    ~D2MSession() {};
 
     void Recv() override;
     void Send(SendBuffer* sendBuffer) override;

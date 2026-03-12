@@ -11,7 +11,7 @@
 #include "DediSessions.h"
 #include "GameRoom.h"
 
-class MainIPCSession;
+class D2MSession;
 
 // TODO :
 // 1. UDP Session 완성
@@ -53,11 +53,11 @@ public:
             return false;
         }
 
-        _mainSession = new MainIPCSession(_dediFd, IORing);
+        _pD2MSession = new D2MSession(_dediFd, IORing);
         std::cout << "D3-1 - OK : DediServerService 객체 초기화 완" << std::endl;
 
         SendIdentityPacket();
-        _mainSession->Recv();
+        _pD2MSession->Recv();
 
         return true;
     };
@@ -67,7 +67,7 @@ public:
         pkt.set_pid(getpid());
         std::cout << "D3-2 : IPC_Protocol::D2MInitComplete으로 직렬화한 pid 전송 시도 : " << getpid() << std::endl;
         SendBuffer* pSendBuffer = PacketHandler::MakeSendBuffer(pkt);
-        _mainSession->Send(pSendBuffer);
+        _pD2MSession->Send(pSendBuffer);
     }
 
     bool InitUDP() {
@@ -184,7 +184,7 @@ public:
 
 private:
     int _dediFd = -1;
-    MainIPCSession* _mainSession = nullptr;
+    D2MSession* _pD2MSession = nullptr;
     
     int _udpFd = -1;
     D2CSession* _pClientSession = nullptr;

@@ -31,8 +31,7 @@ public:
     MatchMaker(int32_t mapId, int32_t maxAgression) 
         :_mapId(mapId), 
         _maxAgression(maxAgression),
-        _bucket(maxAgression + 1),               
-        _ticketsToRematch(maxAgression + 1),     
+        _bucket(maxAgression + 1),  
         _pivotMemorizationFlags(maxAgression + 1, false)
     { }
 

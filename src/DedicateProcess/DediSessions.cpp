@@ -85,19 +85,19 @@ void DediTempSession::OnReadComplete(int readBytes) {
     }
 }
 
-void MainIPCSession::Recv() {
+void D2MSession::Recv() {
 
 }
 
-void MainIPCSession::Send(SendBuffer* sendBuffer) {
+void D2MSession::Send(SendBuffer* sendBuffer) {
     IPCSendTask* pTask = ObjectPool<IPCSendTask>::Acquire(sendBuffer, this);
     IORing->RegisterIPCSendTask(pTask);
 }
 
-void MainIPCSession::OnReadComplete(int readBytes) {
+void D2MSession::OnReadComplete(int readBytes) {
 
 }
 
-void MainIPCSession::OnWriteComplete(int result) {
+void D2MSession::OnWriteComplete(int result) {
 
 }

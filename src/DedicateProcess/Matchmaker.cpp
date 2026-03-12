@@ -232,7 +232,7 @@ void MatchMaker::StartMatchMakeInternal() {
         bool isMatchValid = VerifyAndSetMatchStatus(ticketVec);
         if (isMatchValid) {
             if (pDediManager->DistributePlayerGroup(ticketVec)) {
-
+                std::cout<< "매치 테스트 6 - DediProcess에 매칭 완료된 그룹에 대한 정보 IPC 전송" << std::endl;
             } else {
                 auto pipe = pRedis->pipeline();
                 for (const auto& ticket : ticketVec) {

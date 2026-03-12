@@ -83,6 +83,7 @@ bool Handle_D2M_InitComplete(Session* pSession, IPC_Protocol::D2MInitComplete& p
 bool Handle_M2D_MakeRoomForThisGroup(Session* pSession, IPC_Protocol::M2DMakeRoomForThisGroup& pkt) {
     if (pSession == nullptr || pDediServer == nullptr) return false;
 
+    cout << "핸들러 실행은 됫음" << endl;
     std::vector<std::string> ticketIds;
     ticketIds.reserve(pkt.ticket_id_size());
     for (int i = 0; i < pkt.ticket_id_size(); ++i)
