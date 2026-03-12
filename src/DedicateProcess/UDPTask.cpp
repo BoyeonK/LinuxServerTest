@@ -38,7 +38,7 @@ void D2CSendTask::callback(int result) {
     }
     _pSession->OnWriteComplete(result);
 
-    //TODO : SendBuffer*의 처리
+    //TODO : SendBuffer*의 처리, Broadcast를 구현할거라면 Broadcast용 별도의 SendTask를 만들어야 할듯
     ObjectPool<SendBuffer>::Release(_pBuffer);
     ObjectPool<D2CSendTask>::Release(this);
 }

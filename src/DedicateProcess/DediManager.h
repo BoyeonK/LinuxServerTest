@@ -33,6 +33,7 @@ public:
         int32_t mid = pTicket->mapId;
 
         if (mid >= 0 && mid < MapType::MAP_MAX) {
+            std::cout << "매치 테스트 4 - O : 맵 id = " << mid << "에 대기열 추가 요청 , ticket : " << pTicket->ticketId << std::endl;
             _matchmakers[mid].AddSingleMatchTicket(pTicket);
             return true;
         }

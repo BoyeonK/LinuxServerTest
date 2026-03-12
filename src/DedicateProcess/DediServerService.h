@@ -9,6 +9,7 @@
 #include "../PacketHandler.h"
 #include "../IPCProtocol/IPCProtocol.pb.h"
 #include "DediSessions.h"
+#include "GameRoom.h"
 
 class MainIPCSession;
 
@@ -103,7 +104,7 @@ public:
             return false;
         }
 
-        std::cout << "D3-3 - OK : UDP 서버 준비 완료! EC2 통신용 포트: " << _udpPort << std::endl;
+        std::cout << "D3-3 - OK : UDP 서버 준비 완료. EC2 통신용 포트: " << _udpPort << std::endl;
 
         _pClientSession = new D2CSession(_udpFd, IORing);
         _pClientSession->RegisterRecv();
@@ -111,15 +112,87 @@ public:
         return true;
     }
 
+    bool MakeRoomForThisGroup(std::vector<std::string>& ticketIds) {
+        if (ticketIds.empty() || pRedis == nullptr) return false;
+        auto pipe = pRedis->pipeline();
+        for (const auto& ticketId : ticketIds) {
+            pipe.hmget(ticketId, {"mapId", "status"});
+        }
+        auto replies = pipe.exec();
+
+        std::string expectedMapId = "";
+        bool isGroupValid = true;
+
+        for (int i = 0; i < replies.size(); ++i) {
+            // hmget의 결과 std::vector<OptionalString>
+            auto fields = replies.get<std::vector<sw::redis::OptionalString>>(i);
+            
+            if (fields.size() < 2 || !fields[0] || !fields[1]) {
+                std::cerr << "MakeRoomForThisGroup - X " << ticketIds[i] << std::endl;
+                isGroupValid = false;
+                break;
+            }
+
+            std::string mapId = *(fields[0]);
+            std::string status = *(fields[1]);
+
+            if (i == 0) {
+                expectedMapId = mapId;
+            } 
+            else if (mapId != expectedMapId) {
+                std::cerr << "MakeRoomForThisGroup 그룹 내 Map ID 불일치 (" << expectedMapId << " vs " << mapId << ")" << std::endl;
+                isGroupValid = false;
+                break;
+            }
+
+            if (status != "INPROGRESS") {
+                std::cerr << "MakeRoomForThisGroup INPROGRESS가 아닌 상태 발견 (" << status << ")" << std::endl;
+                isGroupValid = false;
+                break;
+            }
+        }
+
+        if (isGroupValid == false) {
+            auto failPipe = pRedis->pipeline();
+            for (const auto& ticketId : ticketIds) {
+                failPipe.hset(ticketId, "status", "FAILED");
+            }
+            failPipe.exec();
+            return false; 
+        }
+
+        // TODO : IP주소 환경변수에 적어놓기
+        // std::string publicIp = GetPublicIP(); 
+        std::string publicIp = "127.0.0.1";
+        auto successPipe = pRedis->pipeline();
+        
+        static int32_t roomId = 0;
+        roomId++;
+
+        for (const auto& ticketId : ticketIds) {
+            successPipe.hset(ticketId, "udpServerIp", publicIp);
+            successPipe.hset(ticketId, "udpServerPort", std::to_string(_udpPort));
+            _ticketToRoomId[ticketId] = roomId; //혹시 중복이면 덮어쓰기
+        }
+        successPipe.exec();
+
+        GameRoom* newRoom = ObjectPool<GameRoom>::Acquire(std::stoi(expectedMapId), ticketIds);
+        _gameRooms.insert({roomId, newRoom});
+
+        return true;
+    }
+
 private:
     int _dediFd = -1;
     MainIPCSession* _mainSession = nullptr;
-    D2CSession* _pClientSession = nullptr;
-
+    
     int _udpFd = -1;
+    D2CSession* _pClientSession = nullptr;
     uint16_t _udpPort = 0;
 
-    //TODO : UDP로 접속한 클라이언트들의 Session을 담은 컨테이너 추가
+    //TODO : UDP로 접속할 클라이언트들의 그룹인 GameRoom을 담은 컨테이너 추가
+    std::unordered_map<int32_t, GameRoom*> _gameRooms;
+    std::unordered_map<std::string, int32_t> _ticketToRoomId;
 };
 
 extern DediServerService* pDediServer;

@@ -131,7 +131,7 @@ function sendHttpMatchMake(ticketId) {
     sendToCpp(makePacket(PKT_ID_H2M_MATCH_MAKE, payload));
 
     // TODO : 이거 빌드할때는 주석처리하든가 지워야됨
-    console.log(`IPC: HttpMatchMake (ticket: ${ticketId})`);
+    console.log(`매치 테스트 2 - O : ticketId를 IPC를 통해 전송 ticket: ${ticketId}`);
 }
 
 // 매치메이킹 취소 요청 처리용
@@ -145,7 +145,7 @@ function sendHttpMatchMakeCancel(ticketId) {
     sendToCpp(makePacket(PKT_ID_H2M_MATCH_MAKE_CANCEL, payload));
 
     // TODO : 이거 빌드할때는 주석처리하든가 지워야됨
-    console.log(`IPC: HttpMatchMakeCancel (ticket: ${ticketId})`);
+    console.log(`매치 취소 테스트 2 - 0 : ticketId를 IPC를 통해 전송 ticket: ${ticketId}`);
 }
 
 // 다른 파일에서 이 함수들을 쓸 수 있도록 내보내기

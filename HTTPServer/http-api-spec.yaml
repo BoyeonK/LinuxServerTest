@@ -85,6 +85,43 @@ paths:
         '401':
           description: "인증 실패 (비밀번호 불일치 또는 존재하지 않는 ID)"
 
+  # 게스트 로그인 API [추가]
+  /api/guest:
+    post:
+      summary: "게스트 로그인"
+      tags:
+        - Auth
+      description: "계정 생성 없이 임시 게스트 ID를 발급받아 접속합니다."
+      responses:
+        '200':
+          description: "게스트 로그인 성공"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CommonResponse'
+                  - type: object
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/GuestAuthData'
+
+  # 로그아웃 API [추가]
+  /api/logout:
+    post:
+      summary: "로그아웃 요청"
+      tags:
+        - Auth
+      security:
+        - SessionAuth: []
+      description: "현재 접속 중인 세션을 파기하고 로그아웃합니다."
+      responses:
+        '200':
+          description: "로그아웃 성공"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonResponse'
+
   # 매치메이킹 시작
   /api/game/match/start:
     post:
@@ -151,7 +188,7 @@ paths:
       security:
         - SessionAuth: []
       description: "대기 중인 매치메이킹을 취소합니다."
-      requestBody: # [수정] Query Parameter에서 Body로 변경
+      requestBody:
         required: true
         content:
           application/json:
@@ -230,7 +267,27 @@ components:
         sessionId:
           type: string
           description: "API 인증에 사용할 세션 키"
-          example: "abc123xyz456"
+          example: "sess_abc123xyz456"
+        uid: # [추가] 실제 코드에서 반환하는 uid 추가
+          type: integer
+          description: "데이터베이스 고유 식별자 (PK)"
+          example: 13
+
+    GuestAuthData: # [추가] 게스트 로그인 전용 반환 데이터
+      type: object
+      properties:
+        sessionId:
+          type: string
+          description: "API 인증에 사용할 세션 키"
+          example: "sess_guest987xyz"
+        guestId:
+          type: string
+          description: "임시로 발급된 게스트 계정 ID"
+          example: "guest_a1b2c3d4"
+        uid:
+          type: integer
+          description: "임시 데이터베이스 고유 식별자 (음수)"
+          example: -1
 
     # ----------------------------------------------------
     # 요청 본문 스키마들 (Request Bodies)
@@ -281,7 +338,7 @@ components:
               - quantity
             properties:
               itemId:
-                type: integer # [수정] string -> integer
+                type: integer
                 description: "아이템 식별자 ID"
                 example: 101
               quantity:
@@ -310,9 +367,9 @@ components:
         status:
           type: string
           description: "현재 매칭 상태 (WAITING: 대기중, SUCCESS: 매칭 성공, FAILED: 실패)"
-          enum: [WAITING, SUCCESS, FAILED]
+          enum: [WAITING, INPROGRESS, SUCCESS, FAILED]
           example: "SUCCESS"
-        udpServerIp::
+        udpServerIp:
           type: string
           description: "접속해야 할 인게임 UDP 서버 IP (상태가 SUCCESS일 때만 존재)"
           example: "127.0.0.1"

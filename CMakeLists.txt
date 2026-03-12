@@ -44,6 +44,9 @@ set(PROJECT_SOURCES
     src/DedicateProcess/DedicateMain.cpp
     src/DedicateProcess/DediSessions.cpp
     src/DedicateProcess/UDPTask.cpp
+    src/DedicateProcess/GameRoom.cpp
+    src/DedicateProcess/Player.cpp
+    src/DedicateProcess/Items.cpp
 
     src/IPCProtocol/IPCProtocol.pb.cc
 
@@ -66,6 +69,9 @@ set(PROJECT_SOURCES
     src/DedicateProcess/DedicateMain.h
     src/DedicateProcess/DediSessions.h
     src/DedicateProcess/UDPTask.h
+    src/DedicateProcess/GameRoom.h
+    src/DedicateProcess/Player.h
+    src/DedicateProcess/Items.h
 
     src/IPCProtocol/IPCProtocol.pb.h
 )

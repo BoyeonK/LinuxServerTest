@@ -153,13 +153,13 @@ router.post('/start', requireAuth, async (req, res) => {
         await redisClient.expire(ticketId, 300);
 
         // TODO : 빌드할 때 로그 ㄷ지워야댐
-        console.log(`[Match] 큐 진입 - User: ${user_id}, Ticket: ${ticketId}, Items: ${finalItems}`);
+        console.log(`매치 테스트 1 - O : 최초 Redis티켓 생성 ID: ${user_id}, Ticket: ${ticketId}, Items: ${finalItems}`);
 
         sendHttpMatchMake(ticketId);
 
         res.status(200).json(makeResponse(true, 200, { ticketId }));
     } catch (error) {
-        console.error("[Match] Start Error:", error);
+        console.error("매치 테스트 1 - X : 최초 매치 요청 처리부분에서 에러.", error);
         res.status(500).json(makeResponse(false, 500, null, { message: "서버 내부 오류" }));
     }
 });
@@ -229,8 +229,8 @@ router.post('/cancel', requireAuth, async (req, res) => {
 
         if (result === 1) {
             // 성공
+            console.log(`매치 취소 테스트 1 - O : Ticket: ${ticketId}에 대응하는 Redis의 티켓 파기`);
             sendHttpMatchMakeCancel(ticketId);
-            console.log(`[Match] 취소 완료 - User UID: ${db_id}, Ticket: ${ticketId}`);
             return res.status(200).json(makeResponse(true, 200, { message: "매칭이 취소되었습니다." }));
             
         } else if (result === 0) {
