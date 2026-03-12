@@ -15,8 +15,8 @@ class DediManager {
 enum MapType : int32_t {
     MAP_NONE = -1,
     MAP_TUTORIAL = 0,
-    MAP_DESERT,
-    MAP_FOREST,
+    //MAP_DESERT,
+    //MAP_FOREST,
     MAP_MAX
 };
 static constexpr int MAX_AGRESSION = 20;
@@ -109,7 +109,8 @@ public:
         auto now = std::chrono::steady_clock::now();
         auto elapsedMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - _lastTimeMatchStarted).count();
 
-        if (elapsedMs >= 1000) {
+        if (elapsedMs >= 4000) {
+            std::cout << "매치 딸깍" << std::endl;
             _lastTimeMatchStarted = now;
 
             for (auto& matchmaker : _matchmakers) {

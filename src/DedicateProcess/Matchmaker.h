@@ -16,6 +16,7 @@ struct MatchTicket {
     int32_t mapId;
     std::chrono::time_point<std::chrono::steady_clock> startTime;
     bool isMatched = false;
+    bool isValid = true;
     int32_t GetWaitTimeSeconds() const {
         auto now = std::chrono::steady_clock::now();
         return std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count();
@@ -38,7 +39,7 @@ public:
     void AddSingleMatchTicket(MatchTicket* pTicket);
     void AddNewMatchTickets();
     void AddRematchTickets();
-    void DeleteUsedOrUnvaildTickets();
+    void ReleaseAndDeleteTickets();
 
     void FindMatchGroup();
     bool VerifyAndSetMatchStatus(const TicketVector& matchedGroup);
@@ -50,13 +51,13 @@ private:
     int32_t _mapId;
     int32_t _maxAgression;
     TicketVector _ticketsToAdd;
+    TicketVector _ticketsToRelease;
     TicketVector _ticketsToDelete;
     
     TicketVector _timeSortedTicketVector;
 
     // index = agression 별 분류
     std::vector<TicketVector> _bucket;
-    std::vector<TicketVector> _ticketsToRematch;
     std::vector<TicketVector> _matchedGroups;
     std::vector<bool> _pivotMemorizationFlags;
 };

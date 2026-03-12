@@ -51,83 +51,38 @@ void MatchMaker::AddNewMatchTickets() {
     _ticketsToAdd.clear();
 }
 
-void MatchMaker::AddRematchTickets() {
-    // 1. ticketsToRematch의 모든 TicketVector를 먼저 온 친구가 앞에 오도록 정렬함
-    // 2. 모든 agression마다, 정렬된 _bucket[agression]과, 정렬된 _ticket[agression]를 병합
-    // 3. ticketsToRematch의 모든 TicketVector의 ticket을 모아 정렬하여(하나하나 정렬하는거 보다 이게 나음) _timeSortedTicketVector와 병합.
-    TicketVector allRematchTickets;
+void MatchMaker::ReleaseAndDeleteTickets() {
+    auto shouldRemove = [](const MatchTicket* t) { return (t->isMatched || t->isValid == false); };
 
-    for (int aggression = 0; aggression <= _maxAgression; ++aggression) {
-        TicketVector& rematchVec = _ticketsToRematch[aggression];
-
-        if (rematchVec.empty()) continue;
-
-        std::stable_sort(rematchVec.begin(), rematchVec.end(),
-            [](const MatchTicket* a, const MatchTicket* b) {
-                return a->startTime < b->startTime;
-            }
-        );
-
-        TicketVector& bucketVec = _bucket[aggression];
-        TicketVector mergedBucket;
-        mergedBucket.reserve(bucketVec.size() + rematchVec.size());
-
-        std::merge(
-            bucketVec.begin(), bucketVec.end(),
-            rematchVec.begin(), rematchVec.end(),
-            std::back_inserter(mergedBucket),
-            [](const MatchTicket* a, const MatchTicket* b) {
-                return a->startTime < b->startTime;
-            }
-        );
-
-        bucketVec = std::move(mergedBucket);
-        allRematchTickets.insert(allRematchTickets.end(), rematchVec.begin(), rematchVec.end());
-
-        rematchVec.clear();
+    for (MatchTicket* ticket : _timeSortedTicketVector) {
+        if (ticket->isMatched) {
+            _ticketsToRelease.push_back(ticket);
+        } else if (ticket->isValid == false) {
+            _ticketsToDelete.push_back(ticket);
+        }
     }
 
-    if (!allRematchTickets.empty()) {
-        std::stable_sort(allRematchTickets.begin(), allRematchTickets.end(),
-            [](const MatchTicket* a, const MatchTicket* b) {
-                return a->startTime < b->startTime;
-            });
-
-        TicketVector newMainQueue;
-        newMainQueue.reserve(_timeSortedTicketVector.size() + allRematchTickets.size());
-
-        std::merge(
-            _timeSortedTicketVector.begin(), _timeSortedTicketVector.end(),
-            allRematchTickets.begin(), allRematchTickets.end(),
-            std::back_inserter(newMainQueue),
-            [](const MatchTicket* a, const MatchTicket* b) {
-                return a->startTime < b->startTime;
-            }
-        );
-
-        _timeSortedTicketVector = std::move(newMainQueue);
-    }
-}
-
-void MatchMaker::DeleteUsedOrUnvaildTickets() {
-    // 1. _bucket과 _timeSortedTicketVector에 들어있는, isMatched가 true인 포인터를 '놓아준다'.
-    // 2. _ticketsToDelete에 해당하는 Redis의 ticket을 파기함. (없을 수도 있음. HTTP서버 선에서 매칭 취소로 인해 잘라냈을 수 있음)
-    // 3. _ticket의 내용을 비우고 Pool에 반환
     _timeSortedTicketVector.erase(
-        std::remove_if(_timeSortedTicketVector.begin(), _timeSortedTicketVector.end(),
-            [](const MatchTicket* t) { return t->isMatched; }),
+        std::remove_if(_timeSortedTicketVector.begin(), _timeSortedTicketVector.end(), shouldRemove),
         _timeSortedTicketVector.end()
     );
 
     for (TicketVector& bucketVec : _bucket) {
         if (bucketVec.empty()) continue;
-        
+
         bucketVec.erase(
-            std::remove_if(bucketVec.begin(), bucketVec.end(),
-                [](const MatchTicket* t) { return t->isMatched; }),
+            std::remove_if(bucketVec.begin(), bucketVec.end(), shouldRemove),
             bucketVec.end()
         );
     }
+
+    for (MatchTicket* pTicket : _ticketsToRelease) {
+        if (pTicket != nullptr) {
+            ObjectPool<MatchTicket>::Release(pTicket);
+        }
+    }
+
+    _ticketsToRelease.clear();
 
     if (_ticketsToDelete.empty()) return;
     std::vector<std::string> keysToDelete;
@@ -167,7 +122,9 @@ void MatchMaker::FindMatchGroup() {
         int allowedDiff = 0; 
         int targetMinPlayers = 4;
 
-        if (waitTime >= 60) {
+        // TODO : 테스트를 위해서 극단적인 값을 넣어둠. 나중에 변경 필요        
+
+        if (waitTime >= 1) {
             allowedDiff = 1;
             targetMinPlayers = 1;
         } else if (waitTime >= 40) {
@@ -197,7 +154,7 @@ void MatchMaker::FindMatchGroup() {
                 int uaggr = pivotAggr + searchRange;
                 int daggr = pivotAggr - searchRange;
 
-                if (uaggr <= searchMax) {
+                if (matchedGroup.size() < 4 && uaggr <= searchMax) {
                     for (MatchTicket* candidate : _bucket[uaggr]) {
                         if (matchedGroup.size() == 4) break;
                         if (candidate->isMatched) continue;
@@ -275,13 +232,12 @@ void MatchMaker::StartMatchMakeInternal() {
         bool isMatchValid = VerifyAndSetMatchStatus(ticketVec);
         if (isMatchValid) {
             if (pDediManager->DistributePlayerGroup(ticketVec)) {
-                _ticketsToDelete.insert(_ticketsToDelete.end(), ticketVec.begin(), ticketVec.end());
+
             } else {
                 auto pipe = pRedis->pipeline();
                 for (const auto& ticket : ticketVec) {
                     pipe.hset(ticket->ticketId, "status", "WAITING");
                     ticket->isMatched = false;
-                    _ticketsToRematch[ticket->aggression].push_back(ticket);
                 }
                 pipe.exec();
             }
@@ -291,9 +247,9 @@ void MatchMaker::StartMatchMakeInternal() {
 
                 if (statusOpt && *statusOpt == "WAITING") {
                     ticket->isMatched = false;
-                    _ticketsToRematch[ticket->aggression].push_back(ticket);
                 } else {
-                    _ticketsToDelete.push_back(ticket);
+                    // 아마 HTTP서버 선에서 취소처리 되었거나, 버그가 발생한 경우.
+                    ticket->isValid = false;
                 }
             }
         }       
@@ -301,9 +257,8 @@ void MatchMaker::StartMatchMakeInternal() {
 }
 
 void MatchMaker::StartMatchMake() {
-    AddRematchTickets();
     AddNewMatchTickets();
     FindMatchGroup();
     StartMatchMakeInternal();
-    DeleteUsedOrUnvaildTickets();
+    ReleaseAndDeleteTickets();
 }
