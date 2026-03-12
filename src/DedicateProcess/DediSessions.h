@@ -5,7 +5,6 @@
 #include "PacketHandler.h"
 #include "UDPTask.h"
 
-// M2D
 class M2DSession : public Session {
 static constexpr int MAX_PLAYER_PER_PROCESS = 50;
 public:
@@ -76,7 +75,6 @@ private:
     std::vector<IPC_Protocol::M2DMakeRoomForThisGroup> _tempMatchPkts;
 };
 
-// M2D
 class M2DTempSession : public Session {
 public:
     M2DTempSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {};
@@ -91,7 +89,6 @@ private:
     void OnWriteComplete(int result) override {}
 };
 
-// D2M
 class D2MSession : public Session {
 public:
     D2MSession(int fd, IoUringWrapper* uring) : Session(fd, uring) {};
