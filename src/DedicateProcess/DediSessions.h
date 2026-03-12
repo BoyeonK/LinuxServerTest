@@ -36,8 +36,9 @@ public:
             IPC_Protocol::M2DMakeRoomForThisGroup pkt = MakeM2DMakeRoomForThisGroup(ticketVec);
             _tempMatchPkts.push_back(std::move(pkt));
 
-            if (_state == SessionState::Ready)
+            if (_state == SessionState::Ready){
                 FlushPendingTickets(); 
+            } 
 
             return true;
         }

@@ -56,15 +56,15 @@ void HttpIPCSession::Send(SendBuffer* sendBuffer) {
 void HttpIPCSession::OnReadComplete(int readBytes) {
     //IOCP때랑은 다르게, 이 함수가 불릴 시점에는 이미 커널이 받아 왔음. 여기서 들어올 수 있는지에 대한 유효성 검사 X
     //대신, 유효한 패킷인지에 대한 검사를 여기서 해 주어야 할 듯?
-    _recvBuffer.OnRead(readBytes);
     if (readBytes > 0) {
-        //TODO : OnProcess시점부터의 패킷 처리 시작.
+        _recvBuffer.OnRead(readBytes);
         while (true) {
             size_t currentDataSize = _recvBuffer.DataSize();
 
             if (currentDataSize < sizeof(PacketHeader)) {
                 break;
             }
+            
             PacketHeader header = *(reinterpret_cast<PacketHeader*>(_recvBuffer.ProcessedPos()));
 
             if (currentDataSize < header._size) {
@@ -74,8 +74,7 @@ void HttpIPCSession::OnReadComplete(int readBytes) {
             if (PacketHandler::HandlePacket(this, _recvBuffer.ProcessedPos(), header._size)){
                 _recvBuffer.OnProcess(header._size);
             } else {
-                //TODO : 뭔가 잘못됨 뭔가 뭔가임
-                break;
+                return;
             }
         }
         Recv();

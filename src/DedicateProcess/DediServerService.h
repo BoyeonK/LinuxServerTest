@@ -128,7 +128,7 @@ public:
             auto fields = replies.get<std::vector<sw::redis::OptionalString>>(i);
             
             if (fields.size() < 2 || !fields[0] || !fields[1]) {
-                std::cerr << "MakeRoomForThisGroup - X " << ticketIds[i] << std::endl;
+                std::cerr << "매치 테스트 7 - X : MapID나 Status상태 확인 필요 (없는 것 같음)" << ticketIds[i] << std::endl;
                 isGroupValid = false;
                 break;
             }
@@ -140,13 +140,13 @@ public:
                 expectedMapId = mapId;
             } 
             else if (mapId != expectedMapId) {
-                std::cerr << "MakeRoomForThisGroup 그룹 내 Map ID 불일치 (" << expectedMapId << " vs " << mapId << ")" << std::endl;
+                std::cerr << "매치 테스트 7 - X : 그룹 내 Map ID 불일치 (" << expectedMapId << " vs " << mapId << ")" << std::endl;
                 isGroupValid = false;
                 break;
             }
 
             if (status != "INPROGRESS") {
-                std::cerr << "MakeRoomForThisGroup INPROGRESS가 아닌 상태 발견 (" << status << ")" << std::endl;
+                std::cerr << "매치 테스트 7 - X : INPROGRESS가 아닌 상태 발견 (" << status << ")" << std::endl;
                 isGroupValid = false;
                 break;
             }
@@ -178,6 +178,8 @@ public:
 
         GameRoom* newRoom = ObjectPool<GameRoom>::Acquire(std::stoi(expectedMapId), ticketIds);
         _gameRooms.insert({roomId, newRoom});
+
+        std::cout << "매치 테스트 7 - O : 매치 그룹에 대한 Room 할당 완료 및 Redis Ticket 업데이트" << std::endl;
 
         return true;
     }

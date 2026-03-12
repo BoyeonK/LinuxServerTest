@@ -9,7 +9,7 @@
 DediServerService* pDediServer = nullptr;
 
 int DedicateMain(int argc, char* argv[]) {
-    std::cout << "D1 - OK : 인게임 프로세스 부팅 완료!" << std::endl;
+    std::cout << "D1 - OK : 인게임 프로세스 부팅 완료" << std::endl;
 
     const char* env_redis_host  = std::getenv("REDIS_HOST");
     const char* env_redis_port  = std::getenv("REDIS_PORT");
@@ -24,11 +24,15 @@ int DedicateMain(int argc, char* argv[]) {
     }
 
     std::cout << "D2 - OK : 인게임 프로세스에서 환경변수 로드, IoUring객체 및 Redis핸들 생성" << std::endl;
+    
+    PacketHandler::Init();
 
     pDediServer = new DediServerService();
     if (pDediServer->Init() == false) {
         return 1;
     }
+
+    std::cout << "D4 - OK : 인게임 프로세스에서 IoUring객체의 동작 시작" << std::endl;
 
     while (true) {
         IORing->ExecuteCQTask();

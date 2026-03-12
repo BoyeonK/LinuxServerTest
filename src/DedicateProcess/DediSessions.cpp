@@ -17,7 +17,8 @@ void M2DSession::Recv() {
 }
 
 void M2DSession::Send(SendBuffer* sendBuffer) {
-    
+    IPCSendTask* pTask = ObjectPool<IPCSendTask>::Acquire(sendBuffer, this);
+    IORing->RegisterIPCSendTask(pTask);
 }
 
 void M2DSession::OnReadComplete(int readBytes) {
@@ -100,13 +101,15 @@ void D2MSession::OnReadComplete(int readBytes) {
         _recvBuffer.OnRead(readBytes);
 
         while (true) {
-            if (_recvBuffer.DataSize() < sizeof(PacketHeader)) {
+            size_t currentDataSize = _recvBuffer.DataSize();
+
+            if (currentDataSize < sizeof(PacketHeader)) {
                 break;
             }
 
             PacketHeader header = *(reinterpret_cast<PacketHeader*>(_recvBuffer.ProcessedPos()));
             
-            if (_recvBuffer.DataSize() < header._size) {
+            if (currentDataSize < header._size) {
                 break;
             }
 

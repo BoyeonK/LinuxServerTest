@@ -66,7 +66,9 @@ bool Handle_H2M_MatchMake(Session* pSession, IPC_Protocol::H2MMatchMake& pkt) {
 
 bool Handle_H2M_MatchMakeCancel(Session* pSession, IPC_Protocol::H2MMatchMakeCancel& pkt) {
     if (pSession == nullptr) return false;
-    cout << "매치취소 요청 테스트용 콘솔 출력" << endl;
+
+    string ticketKey = pkt.ticket_redis_key();
+    std::cout << "매치 취소 테스트 3 - O : ticket: "<< ticketKey << "를 받아 Handle_H2M_MatchMakeCancel 핸들러 함수 실행" << endl;
 
     return true;
 }
@@ -83,7 +85,7 @@ bool Handle_D2M_InitComplete(Session* pSession, IPC_Protocol::D2MInitComplete& p
 bool Handle_M2D_MakeRoomForThisGroup(Session* pSession, IPC_Protocol::M2DMakeRoomForThisGroup& pkt) {
     if (pSession == nullptr || pDediServer == nullptr) return false;
 
-    cout << "핸들러 실행은 됫음" << endl;
+    std::cout << "매치 테스트 6 - O : DedicateProcess에서 IPC 요청 받음" << std::endl;
     std::vector<std::string> ticketIds;
     ticketIds.reserve(pkt.ticket_id_size());
     for (int i = 0; i < pkt.ticket_id_size(); ++i)

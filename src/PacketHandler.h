@@ -42,6 +42,7 @@ public:
 
 		GProtoPacketHandler[PKT_ID_H2M_WELCOME] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::H2MWelcome>(Handle_H2M_Welcome, pSession, buffer, len); };
 		GProtoPacketHandler[PKT_ID_H2M_MATCH_MAKE] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::H2MMatchMake>(Handle_H2M_MatchMake, pSession, buffer, len); };
+		GProtoPacketHandler[PKT_ID_H2M_MATCH_MAKE_CANCEL] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::H2MMatchMakeCancel>(Handle_H2M_MatchMakeCancel, pSession, buffer, len); };
 		GProtoPacketHandler[PKT_ID_D2M_INIT_COMPLETE] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::D2MInitComplete>(Handle_D2M_InitComplete, pSession, buffer, len); };
 		GProtoPacketHandler[PKT_ID_M2D_MAKE_ROOM_FOR_THIS_GROUP] = [](Session* pSession, unsigned char* buffer, int32_t len) { return HandlePacket<IPC_Protocol::M2DMakeRoomForThisGroup>(Handle_M2D_MakeRoomForThisGroup, pSession, buffer, len); };
 	}
