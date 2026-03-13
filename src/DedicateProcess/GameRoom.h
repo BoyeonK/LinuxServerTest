@@ -14,6 +14,12 @@ public:
         // 2. roomToken 발급 (유효한 플레이어인지 확인용, ticket이 있으니 별도의 token은 필요없나?)
         // 3-1. 인게임에서 사용할 인벤토리를 만듬. (Redis를 이용할지, C++코드로 해결할지 고민중)
         // 3-2. 이제 DB에서 Redis에 적혀있는 인벤토리의 수량만큼 차감 진행, IPC를 통해 HTTP서버에 전달
+        auto pipe = pRedis->pipeline();
+
+        for (const auto& ticketId : ticketIds) {
+            pipe.hset(ticketId, "status", "SUCCESS");
+        }
+        pipe.exec();
     }
 
     void Clear() {
