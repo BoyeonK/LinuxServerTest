@@ -35,9 +35,8 @@ int DedicateMain(int argc, char* argv[]) {
     std::cout << "D4 - OK : 인게임 프로세스에서 IoUring객체의 동작 시작" << std::endl;
 
     while (true) {
-        IORing->ExecuteCQTask();
-
-        std::this_thread::yield();
+        if (IORing->ExecuteCQTask() == false)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     return 0;
